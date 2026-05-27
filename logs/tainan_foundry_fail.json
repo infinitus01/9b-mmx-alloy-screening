@@ -7,7 +7,10 @@
       "Co": 20.0,
       "Cr": 20.0,
       "Fe": 20.0,
-      "Ni": 20.0
+      "Ni": 20.0,
+      "Mn": 0.0,
+      "C": 0.0,
+      "N": 0.0
     },
     "process_parameters": {
       "cooling_rate_K_s": 0.5,
@@ -29,7 +32,10 @@
       "Co": 20.0,
       "Cr": 35.0,
       "Fe": 22.5,
-      "Ni": 22.5
+      "Ni": 22.5,
+      "Mn": 0.0,
+      "C": 0.0,
+      "N": 0.0
     },
     "process_parameters": {
       "cooling_rate_K_s": 2.0,
@@ -51,7 +57,10 @@
       "Co": 23.3,
       "Cr": 23.3,
       "Fe": 23.3,
-      "Ni": 23.3
+      "Ni": 23.3,
+      "Mn": 0.0,
+      "C": 0.0,
+      "N": 0.0
     },
     "process_parameters": {
       "cooling_rate_K_s": 0.08,
@@ -67,6 +76,7 @@
   },
   {
     "id": "Virt-RHEA-Fail-004",
+    "source_type": "virtual_high_temperature_failure_proxy",
     "alloy_name": "RHEA-W-Mo-Ta-Nb-Ti_Balanced",
     "composition": {
       "Al": 0.0,
@@ -74,6 +84,9 @@
       "Cr": 0.0,
       "Fe": 0.0,
       "Ni": 0.0,
+      "Mn": 0.0,
+      "C": 0.0,
+      "N": 0.0,
       "W": 20.0,
       "Mo": 20.0,
       "Ta": 20.0,
@@ -87,13 +100,14 @@
       "melting_atmosphere": "Vacuum_Arc_VAR"
     },
     "defect_type": "MTM_PROCESS_RISK",
-    "defect_details": "[RHEA首航熔斷] 鈦(Ti)元素引入拉低熔點至 2368°C，導致 1600°C 下同系溫度 Th = 0.709 超標，高溫高壓下發生晶界剪切滑移與蠕變失效。",
+    "defect_details": "Virtual high-temperature failure proxy. Ti addition lowers the estimated melting point to 2368°C, producing an excessive homologous temperature (Th = 0.709) at 1600°C and elevated grain-boundary creep risk.",
     "severity_weight": 0.80,
     "kernel_bandwidth": 3.0,
     "timestamp": "2026-05-27T01:10:00Z"
   },
   {
     "id": "Virt-RHEA-Fail-005",
+    "source_type": "virtual_high_temperature_failure_proxy",
     "alloy_name": "RHEA-Nb-Ti-V-Ta_Ductile",
     "composition": {
       "Al": 0.0,
@@ -101,6 +115,9 @@
       "Cr": 0.0,
       "Fe": 0.0,
       "Ni": 0.0,
+      "Mn": 0.0,
+      "C": 0.0,
+      "N": 0.0,
       "W": 0.0,
       "Mo": 0.0,
       "Ta": 25.0,
@@ -115,13 +132,14 @@
       "melting_atmosphere": "Vacuum_Arc_VAR"
     },
     "defect_type": "MTM_PROCESS_RISK",
-    "defect_details": "[RHEA首航熔斷] 無鎢/鉬保護，合金熔點降至 1995°C，1600°C 同系溫度 Th = 0.826 極度軟化，結構瞬時蠕變崩塌。",
+    "defect_details": "Virtual high-temperature failure proxy. The absence of W/Mo lowers the estimated melting point to 1995°C, producing a high homologous temperature (Th = 0.826) and elevated creep-softening risk at 1600°C.",
     "severity_weight": 0.88,
     "kernel_bandwidth": 4.0,
     "timestamp": "2026-05-27T01:10:00Z"
   },
   {
     "id": "Virt-RHEA-Fail-006",
+    "source_type": "virtual_high_temperature_failure_proxy",
     "alloy_name": "RHEA-W-Mo-Cr-Ti_LowDensity",
     "composition": {
       "Al": 0.0,
@@ -129,6 +147,9 @@
       "Cr": 20.0,
       "Fe": 0.0,
       "Ni": 0.0,
+      "Mn": 0.0,
+      "C": 0.0,
+      "N": 0.0,
       "W": 30.0,
       "Mo": 30.0,
       "Ta": 0.0,
@@ -142,9 +163,61 @@
       "melting_atmosphere": "Vacuum_Arc_VAR"
     },
     "defect_type": "MTM_PROCESS_RISK",
-    "defect_details": "[RHEA首航熔斷] 輕量鉻(Cr)與鈦(Ti)熔點偏低，同系溫度 Th = 0.741 超過安全限制，高溫蠕變承載力不足。",
+    "defect_details": "Virtual high-temperature failure proxy. Cr/Ti additions reduce the estimated high-temperature margin, giving Th = 0.741 at 1600°C and insufficient creep-load margin in this screening model.",
     "severity_weight": 0.75,
     "kernel_bandwidth": 3.2,
     "timestamp": "2026-05-27T01:10:00Z"
+  },
+  {
+    "id": "Tainan-CN-007",
+    "source_type": "conceptual_stress_test_proxy",
+    "alloy_name": "Fe46-Mn24-Cr18-Ni10-N2_Sensitized",
+    "composition": {
+      "Al": 0.0,
+      "Co": 0.0,
+      "Cr": 18.0,
+      "Fe": 46.0,
+      "Ni": 10.0,
+      "Mn": 24.0,
+      "C": 0.0,
+      "N": 2.0
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 0.1,
+      "heat_treatment_temp_C": 700,
+      "work_stress_MPa": 120,
+      "melting_atmosphere": "Vacuum_Induction"
+    },
+    "defect_type": "LTM_THERMO_DEAD_ZONE",
+    "defect_details": "Conceptual stress-test proxy for N=2 at.% steel. Low cooling rate (0.1 K/s) is modeled as a high-risk sensitization condition with Cr2N grain-boundary precipitation and intergranular cracking risk.",
+    "severity_weight": 0.90,
+    "kernel_bandwidth": 3.0,
+    "timestamp": "2026-05-27T10:00:00Z"
+  },
+  {
+    "id": "Tainan-CN-008",
+    "source_type": "conceptual_stress_test_proxy",
+    "alloy_name": "Fe48-Mn24-Cr18-Ni10-C2_Carbide_Segregation",
+    "composition": {
+      "Al": 0.0,
+      "Co": 0.0,
+      "Cr": 18.0,
+      "Fe": 48.0,
+      "Ni": 10.0,
+      "Mn": 24.0,
+      "C": 2.0,
+      "N": 0.0
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 0.5,
+      "heat_treatment_temp_C": 800,
+      "work_stress_MPa": 90,
+      "melting_atmosphere": "Vacuum_Induction"
+    },
+    "defect_type": "MTM_PROCESS_RISK",
+    "defect_details": "Conceptual carbon-doped steel stress-test proxy with excessive grain-boundary M23C6 carbide network, high sensitization risk, and intergranular brittle-fracture risk under tension.",
+    "severity_weight": 0.85,
+    "kernel_bandwidth": 3.5,
+    "timestamp": "2026-05-27T10:15:00Z"
   }
 ]

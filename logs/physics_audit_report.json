@@ -1,12 +1,15 @@
 {
-  "timestamp": "2026-05-27T02:53:26.318Z",
-  "candidate_alloy": "HEA-Config-#99",
+  "timestamp": "2026-05-27T06:16:36.360Z",
+  "candidate_alloy": "Fe46-Mn24-Cr18-Ni10-N2",
   "composition": {
-    "Al": 18,
-    "Co": 20.5,
-    "Cr": 20.5,
-    "Fe": 20.5,
-    "Ni": 20.5
+    "Al": 0,
+    "Co": 0,
+    "Cr": 18,
+    "Fe": 46,
+    "Ni": 10,
+    "Mn": 24,
+    "C": 0,
+    "N": 2
   },
   "process": {
     "cooling_rate_K_s": 0.6,
@@ -15,14 +18,17 @@
     "melting_atmosphere": "Vacuum_Induction"
   },
   "descriptors": {
-    "VEC": 7.305,
-    "delta_percent": 5.247146839593173,
-    "dH_mix_kJ_mol": -11.6727,
-    "entropy_param_omega": 1.9504006361299702,
-    "predicted_phase": "Mixed FCC + BCC Phase"
+    "VEC": 7.591836734693878,
+    "delta_percent": 0.8741999593594358,
+    "dH_mix_kJ_mol": -1.6926280716368183,
+    "entropy_param_omega": 10.988771014065897,
+    "predicted_phase": "Mixed FCC + BCC Phase",
+    "estimated_SFE_heuristic_index": 21.64092575635552,
+    "PREN": 25.45370298864777,
+    "interstitial_precipitation_risk": 11.0144
   },
   "hardness_predictions": {
-    "surrogate_hardness_HV": 461.1,
+    "surrogate_hardness_HV": 425.2,
     "is_extreme_prediction": false
   },
   "physics_sanity_gate": {
@@ -30,13 +36,18 @@
     "element_sum_deviation": 0,
     "tolerance": 0.000001,
     "phase_risk_flags_triggered": [
-      "sigma_phase_at_high_temp",
-      "Laves_phase"
+      "sigma_phase_at_high_temp"
     ],
-    "passed": false
+    "passed": false,
+    "interstitial_solubility": {
+      "is_N_exceeded": false,
+      "is_C_exceeded": false,
+      "is_total_exceeded": false,
+      "passed": true
+    }
   },
   "failure_distance_penalty_model": {
-    "total_penalty_score": 0.7707804628950818,
+    "total_penalty_score": 1.312488236210804,
     "threshold": 0.25,
     "is_high_risk": true,
     "details": [
@@ -44,15 +55,15 @@
         "fail_id": "Tainan-VIM-001",
         "alloy_name": "AlCoCrFeNi_equiatomic",
         "defect_type": "LTM_THERMO_DEAD_ZONE",
-        "distance": "2.24",
-        "raw_penalty": "0.7746",
-        "final_penalty": "0.7708"
+        "distance": "46.48",
+        "raw_penalty": "0.0000",
+        "final_penalty": "0.0000"
       },
       {
         "fail_id": "Tainan-VAR-002",
         "alloy_name": "CoCr1.8FeNi",
         "defect_type": "MTM_PROCESS_RISK",
-        "distance": "23.29",
+        "distance": "44.47",
         "raw_penalty": "0.0000",
         "final_penalty": "0.0000"
       },
@@ -60,7 +71,7 @@
         "fail_id": "Tainan-DCC-003",
         "alloy_name": "Al0.3CoCrFeNi_Slow_Cool",
         "defect_type": "STM_OPERATOR_NOISE",
-        "distance": "12.52",
+        "distance": "43.47",
         "raw_penalty": "0.0000",
         "final_penalty": "0.0000"
       },
@@ -68,7 +79,7 @@
         "fail_id": "Virt-RHEA-Fail-004",
         "alloy_name": "RHEA-W-Mo-Ta-Nb-Ti_Balanced",
         "defect_type": "MTM_PROCESS_RISK",
-        "distance": "44.78",
+        "distance": "71.55",
         "raw_penalty": "0.0000",
         "final_penalty": "0.0000"
       },
@@ -76,7 +87,7 @@
         "fail_id": "Virt-RHEA-Fail-005",
         "alloy_name": "RHEA-Nb-Ti-V-Ta_Ductile",
         "defect_type": "MTM_PROCESS_RISK",
-        "distance": "44.78",
+        "distance": "74.97",
         "raw_penalty": "0.0000",
         "final_penalty": "0.0000"
       },
@@ -84,15 +95,31 @@
         "fail_id": "Virt-RHEA-Fail-006",
         "alloy_name": "RHEA-W-Mo-Cr-Ti_LowDensity",
         "defect_type": "MTM_PROCESS_RISK",
-        "distance": "39.81",
+        "distance": "70.71",
         "raw_penalty": "0.0000",
         "final_penalty": "0.0000"
+      },
+      {
+        "fail_id": "Tainan-CN-007",
+        "alloy_name": "Fe46-Mn24-Cr18-Ni10-N2_Sensitized",
+        "defect_type": "LTM_THERMO_DEAD_ZONE",
+        "distance": "0.00",
+        "raw_penalty": "0.9000",
+        "final_penalty": "0.7942"
+      },
+      {
+        "fail_id": "Tainan-CN-008",
+        "alloy_name": "Fe48-Mn24-Cr18-Ni10-C2_Carbide_Segregation",
+        "defect_type": "MTM_PROCESS_RISK",
+        "distance": "3.46",
+        "raw_penalty": "0.5208",
+        "final_penalty": "0.5182"
       }
     ]
   },
   "risk_evaluation": {
-    "approximate_raw_material_cost_index": 13.065,
+    "approximate_raw_material_cost_index": 4.077000000000001,
     "status": "HIGH_RISK_SCREENING_RESULT",
-    "recommendation": "This report is a computational screening result based on descriptors, surrogate estimates, and historical failure-distance penalties. It is not a substitute for physical melting, microscopy, phase identification, or mechanical testing."
+    "recommendation": "This report is a computational screening result based on descriptors, surrogate estimates, and historical/proxy failure-distance penalties. It is not a substitute for physical melting, microscopy, phase identification, or mechanical testing."
   }
 }

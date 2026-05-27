@@ -1,6 +1,6 @@
 # Search Direction: Nitrogen-Alloyed Fe-Mn-Cr-Ni-N Structural Alloys
 
-This document outlines the conceptual search direction for transitioning from the legacy Al-Co-Cr-Fe-Ni multi-principal element alloy (MPEA) system to nitrogen-alloyed Fe-Mn-Cr-Ni-N structural alloys. These candidates represent the next-generation roadmap for low-criticality, high-strength structural materials.
+This document outlines the search direction for the fully integrated Fe-Mn-Cr-Ni-C-N metastable structural alloy screening console, transitioning from the legacy Al-Co-Cr-Fe-Ni system. These candidates represent low-criticality, high-strength structural materials.
 
 > [!IMPORTANT]
 > **Model Calibration and Safety Disclaimer**
@@ -32,9 +32,13 @@ $$PREN = wt\%Cr + 3.3 \cdot wt\%Mo + 16 \cdot wt\%N$$
 
 ---
 
-## 2. Research Roadmap to Engine Calibration (Engine v2)
+## 2. Active Engine Integration & Heuristic Calibration
 
-To safely transition the active computational screening engine and frontend sliders from Al-Co-Cr-Fe-Ni to Fe-Mn-Cr-Ni-N, the following physical parameters must be mathematically integrated and calibrated:
+The computational screening engine and frontend sliders have been fully transitioned from Al-Co-Cr-Fe-Ni to the Fe-Mn-Cr-Ni-C-N system in Phase 2. The active parameters have been integrated and calibrated based on standard literature heuristics:
+
+> [!NOTE]
+> **Active Implementation Status**
+> While fully integrated into the code runtime, these models remain computational screening heuristics. Full physical calibration against actual experimental melting, cryogenic toughness, and weldability tests remains a necessary next step.
 
 1. **Nitrogen Solubility Limits**: Incorporate thermodynamic calculations (via CALPHAD or Sieverts' law models) to predict nitrogen outgassing or bubble formation during solidification under standard casting pressures.
 2. **Interstitial-Substitutional Mixing Enthalpy**: Adapt Miedema’s model or high-throughput DFT databases to account for ternary interactions between nitrogen and alloy elements (especially Cr-N and Mn-N strong chemical affinities).

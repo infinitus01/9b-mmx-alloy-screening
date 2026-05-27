@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>9B-MMX v0.1: 非同步虛實材料治理與失敗記憶主控台 (Async Cyber-Physical Materials Governance)</title>
+  <title>9B-MMX: Computational Alloy Screening Console</title>
   <!-- Google Fonts for professional tech visuals -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,13 +20,13 @@
 
   <!-- Main Cockpit Layout -->
   <div class="cockpit-container">
-    
+
     <!-- Top Flight Control Bar -->
     <header class="flight-header">
       <div class="brand">
         <span class="status-indicator online pulsing"></span>
-        <h1 id="main-title">9B-MMX v0.1 <span class="accent-text">治理航空電腦</span></h1>
-        <p class="tagline">Cyber-Physical Materials Flight Control Console</p>
+        <h1 id="main-title">9B-MMX v0.1 <span class="accent-text">材料計算篩選系統</span></h1>
+        <p class="tagline">Cyber-Physical Materials Computational Auditing Console</p>
       </div>
 
       <!-- Asynchronous Clock & Epoch Synchronization -->
@@ -54,37 +54,49 @@
 
     <!-- Main Workspace Content -->
     <main class="cockpit-grid">
-      
+
       <!-- LEFT PANEL: Candidate Alloy Spec & CMEP Bypass -->
       <section class="cockpit-panel panel-left" id="panel-alloy-composition">
         <div class="panel-header">
           <span class="panel-icon">⚛</span>
-          <h2>候選成分與製程配置 (HEA Spec)</h2>
+          <h2>候選成分與製程配置 (Alloy Spec)</h2>
         </div>
-        
+
         <div class="panel-body">
           <!-- Alloy Composition Inputs -->
           <div class="input-group">
-            <h3>高熵合金主元素佔比 (Atomic %)</h3>
+            <h3>候選合金元素佔比 (Atomic %)</h3>
             <div class="slider-row">
-              <label for="range-al">鋁 (Al): <span class="val-display" id="val-al">18.0</span> at.%</label>
-              <input type="range" id="range-al" min="0" max="100" step="0.1" value="18.0">
+              <label for="range-al">鋁 (Al): <span class="val-display" id="val-al">0.0</span> at.%</label>
+              <input type="range" id="range-al" min="0" max="100" step="0.1" value="0.0">
             </div>
             <div class="slider-row">
-              <label for="range-co">鈷 (Co): <span class="val-display" id="val-co">20.5</span> at.%</label>
-              <input type="range" id="range-co" min="0" max="100" step="0.1" value="20.5">
+              <label for="range-co">鈷 (Co): <span class="val-display" id="val-co">0.0</span> at.%</label>
+              <input type="range" id="range-co" min="0" max="100" step="0.1" value="0.0">
             </div>
             <div class="slider-row">
-              <label for="range-cr">鉻 (Cr): <span class="val-display" id="val-cr">20.5</span> at.%</label>
-              <input type="range" id="range-cr" min="0" max="100" step="0.1" value="20.5">
+              <label for="range-cr">鉻 (Cr): <span class="val-display" id="val-cr">18.0</span> at.%</label>
+              <input type="range" id="range-cr" min="0" max="100" step="0.1" value="18.0">
             </div>
             <div class="slider-row">
-              <label for="range-fe">鐵 (Fe): <span class="val-display" id="val-fe">20.5</span> at.%</label>
-              <input type="range" id="range-fe" min="0" max="100" step="0.1" value="20.5">
+              <label for="range-fe">鐵 (Fe): <span class="val-display" id="val-fe">46.0</span> at.%</label>
+              <input type="range" id="range-fe" min="0" max="100" step="0.1" value="46.0">
             </div>
             <div class="slider-row">
-              <label for="range-ni">鎳 (Ni): <span class="val-display" id="val-ni">20.5</span> at.%</label>
-              <input type="range" id="range-ni" min="0" max="100" step="0.1" value="20.5">
+              <label for="range-ni">鎳 (Ni): <span class="val-display" id="val-ni">10.0</span> at.%</label>
+              <input type="range" id="range-ni" min="0" max="100" step="0.1" value="10.0">
+            </div>
+            <div class="slider-row">
+              <label for="range-mn">錳 (Mn): <span class="val-display" id="val-mn">24.0</span> at.%</label>
+              <input type="range" id="range-mn" min="0" max="100" step="0.1" value="24.0">
+            </div>
+            <div class="slider-row">
+              <label for="range-c">碳 (C): <span class="val-display" id="val-c">0.0</span> at.%</label>
+              <input type="range" id="range-c" min="0" max="3.0" step="0.05" value="0.0">
+            </div>
+            <div class="slider-row">
+              <label for="range-n">氮 (N): <span class="val-display" id="val-n">2.0</span> at.%</label>
+              <input type="range" id="range-n" min="0" max="3.0" step="0.05" value="2.0">
             </div>
 
             <!-- Composition Audit Bar -->
@@ -95,6 +107,7 @@
               <div class="summary-details">
                 <span>總佔比: <strong id="total-percentage">100.00</strong> %</span>
                 <span class="status-tag status-success" id="sum-status">✔ 精確守恆</span>
+                <span class="status-tag status-success hide" id="solubility-status">✔ 間隙固溶正常</span>
               </div>
               <button class="btn btn-secondary btn-sm" id="btn-normalize">⚖ 一鍵自動守恆歸一化</button>
             </div>
@@ -105,7 +118,7 @@
           <!-- Metallurgical Process Parameters -->
           <div class="input-group">
             <h3>冶煉製程配置參數 (Process Configuration)</h3>
-            
+
             <div class="form-row">
               <div class="form-col">
                 <label for="input-cooling-rate">冷卻速率 (K/s)</label>
@@ -144,8 +157,8 @@
               <span class="cmep-badge warning-pulse">CMEP BYPASS</span>
               <h3>受控亞穩態探索協議 (CMEP)</h3>
             </div>
-            <p class="cmep-desc">允許物理描述符臨界偏離以搜尋高熵合金的非平衡態與亞穩超導能帶結構，但將鎖定已驗證材料庫的寫入權限。</p>
-            
+            <p class="cmep-desc">允許物理描述符臨界偏離以探索非平衡態與亞穩候選區間，但將鎖定已驗證材料庫的寫入權限。</p>
+
             <div class="cmep-controls">
               <div class="toggle-container">
                 <button class="btn btn-danger btn-block" id="btn-cmep-toggle">
@@ -159,7 +172,7 @@
               </div>
             </div>
           </div>
-          
+
         </div>
       </section>
 
@@ -167,7 +180,7 @@
       <section class="cockpit-panel panel-middle" id="panel-governance-audit">
         <div class="panel-header">
           <span class="panel-icon">🧠</span>
-          <h2>飛控電腦九腦治理層 (9-Brain Flight Computer)</h2>
+          <h2>材料計算篩選決策層 (9-Brain Auditing Console)</h2>
         </div>
 
         <div class="panel-body flex-column">
@@ -193,6 +206,21 @@
               <span class="readout-val" id="desc-omega">1.950</span>
               <span class="readout-status success-text" id="desc-omega-status">固溶相穩定度</span>
             </div>
+            <div class="readout-card">
+              <span class="readout-title">疊差能 SFE</span>
+              <span class="readout-val" id="desc-sfe">21.6 mJ/m²</span>
+              <span class="readout-status success-text" id="desc-sfe-status">TWIP/TRIP臨界區</span>
+            </div>
+            <div class="readout-card">
+              <span class="readout-title">耐點蝕指數 PREN</span>
+              <span class="readout-val" id="desc-pren">25.5</span>
+              <span class="readout-status success-text" id="desc-pren-status">耐點蝕性佳</span>
+            </div>
+            <div class="readout-card">
+              <span class="readout-title">間隙析出風險</span>
+              <span class="readout-val" id="desc-intrisk">11.01 kJ/mol</span>
+              <span class="readout-status success-text" id="desc-intrisk-status">間隙交互作用正常</span>
+            </div>
           </div>
 
           <!-- Crystal Phase Prediction Overlay -->
@@ -212,7 +240,7 @@
               <span class="terminal-title">9B-MMX 權責隔離審計主機日誌 [AGENTS.md Enforced]</span>
               <button class="btn btn-secondary btn-xs" id="btn-clear-logs">清除日誌</button>
             </div>
-            
+
             <div class="terminal-body" id="audit-terminal-logs">
               <!-- Scrollable logs populated by JavaScript -->
             </div>
@@ -241,17 +269,17 @@
           <!-- Defect repelled terrain (Penalty field map) -->
           <div class="chart-container">
             <div class="chart-header">
-              <h3>高維度失敗known failure region分佈圖 (Foundry Feedback Kernel Map)</h3>
+              <h3>失敗/代理樣本排斥場分佈圖 (Foundry Feedback Kernel Map)</h3>
               <span class="danger-level-badge level-high" id="foundry-score-badge">P_foundry = 0.5284 (高風險)</span>
             </div>
-            
+
             <!-- Map canvas -->
             <div class="failure-map-wrapper">
               <canvas id="failure-kernel-canvas" width="380" height="240"></canvas>
-              <div class="map-coordinates-legend">
-                <span>← 延展相 (BCC富集)</span>
-                <span>複合相 (偏析區)</span>
-                <span>脆化相 (高Al) →</span>
+              <div class="failure-map-coordinates-legend">
+                <span>← 錳含量 (Mn at.%)</span>
+                <span>製程排斥場</span>
+                <span>鉻含量 (Cr at.%) →</span>
               </div>
             </div>
           </div>
@@ -262,7 +290,7 @@
               <h3>surrogate hardness estimate 代理模型預估與潛在漂移 (VIB Latent Gate)</h3>
               <span class="status-tag status-danger hide" id="ood-tag">[OOD_EXTREME_PROTOTYPE]</span>
             </div>
-            
+
             <div class="vibann-stats-row">
               <div class="vib-stat-box">
                 <span class="vib-stat-label">預估維氏硬度 HV</span>
@@ -285,12 +313,12 @@
           <div class="add-failure-section">
             <h3>將實體失败回灌為懲罰核 (Feed In Foundry Failure)</h3>
             <p class="section-desc">將台南製程實體試熔 (Initial Computational Evaluation Phase) 的裂紋或缺陷金相，反向注入為高維搜尋空間中的懲罰核心。</p>
-            
+
             <form id="form-add-failure" onsubmit="return false;">
               <div class="form-row">
                 <div class="form-col">
                   <label for="fail-alloy">合金配方</label>
-                  <input type="text" id="fail-alloy" placeholder="例: Al0.9CoCrFeNi" required>
+                  <input type="text" id="fail-alloy" placeholder="例: Fe46-Mn24-Cr18-Ni10-N2" required>
                 </div>
                 <div class="form-col">
                   <label for="fail-type">缺陷記憶分級</label>
@@ -301,15 +329,30 @@
                   </select>
                 </div>
               </div>
-              
+
               <div class="form-row">
                 <div class="form-col">
                   <label for="fail-al">Al %</label>
-                  <input type="number" id="fail-al" min="0" max="100" value="22" required>
+                  <input type="number" id="fail-al" min="0" max="100" value="0" required>
                 </div>
                 <div class="form-col">
                   <label for="fail-cr">Cr %</label>
-                  <input type="number" id="fail-cr" min="0" max="100" value="19" required>
+                  <input type="number" id="fail-cr" min="0" max="100" value="18" required>
+                </div>
+                <div class="form-col">
+                  <label for="fail-mn">Mn %</label>
+                  <input type="number" id="fail-mn" min="0" max="100" value="24" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="fail-c">C %</label>
+                  <input type="number" id="fail-c" min="0" max="3" value="0" step="0.05" required>
+                </div>
+                <div class="form-col">
+                  <label for="fail-n">N %</label>
+                  <input type="number" id="fail-n" min="0" max="3" value="2" step="0.05" required>
                 </div>
                 <div class="form-col">
                   <label for="fail-cooling">冷卻速率 (K/s)</label>
@@ -320,7 +363,7 @@
               <div class="form-row">
                 <div class="form-col">
                   <label for="fail-details">金相缺陷描述</label>
-                  <input type="text" id="fail-details" placeholder="例: 析出大量 σ 脆性相，試片嚴重斷裂" required>
+                  <input type="text" id="fail-details" placeholder="例: 晶界析出粗大 Cr2N 氮化物，試片嚴重開裂" required>
                 </div>
               </div>
 
@@ -345,7 +388,7 @@
           <textarea id="textarea-agents-config" rows="18" class="config-editor-area"></textarea>
           <div class="modal-actions">
             <button class="btn btn-secondary" id="btn-reset-config">恢復預設</button>
-            <button class="btn btn-primary" id="btn-save-config">✔ 保存配置並重新編譯飛控核心</button>
+            <button class="btn btn-primary" id="btn-save-config">✔ 保存配置並載入系統安全護欄</button>
           </div>
         </div>
       </div>
@@ -356,7 +399,7 @@
       <div class="report-ticker">
         <span class="ticker-badge ticker-warning">風險警報</span>
         <div class="ticker-text" id="footer-report-summary">
-          飛控電腦狀態: 等待指令。請點擊「立即執行非同步物理一致性審核」按鈕啟動九腦決策鏈。
+          材料篩選系統狀態: 等待指令。請點擊「立即執行非同步物理一致性審核」按鈕啟動篩選流程。
         </div>
       </div>
       <div class="system-stats">

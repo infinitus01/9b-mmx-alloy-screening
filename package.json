@@ -1,11 +1,11 @@
 {
   "name": "9b-mmx-materials-console",
-  "version": "1.0.0",
-  "description": "Computational alloy screening prototype with descriptor checks and historical failure-distance penalties",
+  "version": "1.1.0",
+  "description": "Computational alloy screening prototype with descriptor checks and failure/proxy-distance penalties",
   "main": "server.js",
   "scripts": {
     "dev": "node server.js",
-    "audit": "node agy.js /goal \"對 HEA-Config-#99 進行非同步物理一致性審核，載入 @logs/tainan_foundry_fail.json 作為真實排斥場核心\" --config=AGENTS.md"
+    "audit": "node agy.js /goal \"對 Fe46-Mn24-Cr18-Ni10-N2 進行非同步物理一致性審核，載入 @logs/tainan_foundry_fail.json 作為失敗/代理排斥場核心\" --config=AGENTS.md"
   },
   "keywords": [
     "metallurgy",

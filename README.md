@@ -1,15 +1,15 @@
 # 9B-MMX: Computational Alloy Screening Prototype
 
-9B-MMX is a screening and audit prototype for low-criticality Fe-Mn-Cr-Ni-N structural alloy candidates, with a legacy Al-Co-Cr-Fe-Ni descriptor demo currently included.
+9B-MMX is a screening and audit prototype for carbon-nitrogen co-doped Fe-Mn-Cr-Ni-C-N metastable structural alloy candidates, with legacy Al-Co-Cr-Fe-Ni descriptor demo compatibility preserved.
 
 > **Important Disclaimer**: This tool is a pre-screening computational filter. It is **not** a substitute for physical melting, microscopy, phase identification, or mechanical testing. All predictions and cost values are heuristic estimates for risk-alerting, not guaranteed material specifications.
 >
-> The Fe-Mn-Cr-Ni-N search seeds are not yet calibrated against a validated thermodynamic, corrosion, cryogenic, weldability, or hydrogen embrittlement model.
+> The Fe-Mn-Cr-Ni-C-N search seeds represent conceptual search directions and are not yet calibrated against a validated thermodynamic, corrosion, cryogenic, weldability, or hydrogen embrittlement model.
 
 ---
 
 ## 1. Project Overview
-This repository provides a lightweight, rule-based screening prototype for multi-principal-element and structural alloy candidates. It currently contains a legacy Al-Co-Cr-Fe-Ni descriptor demo, while the forward roadmap focuses on low-criticality Fe-Mn-Cr-Ni-N structural alloy search seeds.
+This repository provides a lightweight, rule-based screening prototype for multi-principal-element and structural alloy candidates. The Fe-Mn-Cr-Ni-C-N metastable structural steel system is fully integrated into the computational screening runtime (with physical calibrations remaining heuristic and unvalidated by physical melts). Legacy Al-Co-Cr-Fe-Ni descriptor compatibility is also preserved.
 
 ---
 
@@ -32,11 +32,14 @@ As detailed in [docs/search_direction.md](docs/search_direction.md), the primary
 
 ## 3. Capabilities & Scope
 
-### What this tool DOES:
-* **Thermodynamic Descriptor Estimation**: Calculates empirical values for Valence Electron Concentration (VEC), atomic size differences ($\delta$), mixing enthalpy ($\Delta H_{\text{mix}}$), and entropy parameters ($\Omega$).
-* **Rule-Based Phase-Risk Flagging**: Identifies risks of brittle $\sigma$-phase or topologically close-packed (TCP) Laves-phase segregation using standard literature heuristics.
-* **Failure-Distance Penalty Modeling**: Employs a non-parametric Gaussian kernel to calculate composition and cooling rate distances against known casting failures to prevent repeating dead-end experiments.
-* **Surrogate Hardness Indexing**: Computes quick linear approximations of Vickers Hardness based on solute strengthening equations.
+### What this tool DOES (Phase 2 Integrated):
+* **Thermodynamic Descriptor Estimation**: Calculates empirical values for Valence Electron Concentration (VEC), atomic size differences ($\delta$), mixing enthalpy ($\Delta H_{\text{mix}}$), and entropy parameters ($\Omega$) as **substitutional-only descriptors** (normalized within the substitutional subsystem).
+* **Solute Stacking Fault Energy ($SFE$) Indexing**: Estimates a weight percent (wt.%) based empirical SFE heuristic index to evaluate TRIP/TWIP deformation mechanism boundaries.
+* **Pitting Corrosion Resistance (PREN)**: Computes the Pitting Resistance Equivalent Number ($PREN = \text{Cr} + 16\text{N}$) in wt.% via `atPctToWtPct()` conversions.
+* **Interstitial Solubility & Precipitation Risk**: Enforces interstitial solubility limit gates for N, C, and total interstitials, and calculates the interstitial precipitation risk index from pairing enthalpies.
+* **Rule-Based Phase-Risk Flagging**: Identifies risks of brittle $\sigma$-phase, TCP Laves-phase, as well as interstitial grain-boundary $\text{Cr}_2\text{N}$ nitrides and $\text{M}_{23}\text{C}_6$ carbides using standard literature heuristics.
+* **Failure-Distance Penalty Modeling**: Employs a non-parametric Gaussian kernel to calculate multi-dimensional Euclidean composition and cooling rate distances against known casting failures in the expanded failure database.
+* **Surrogate Hardness Indexing**: Computes quick linear approximations of Vickers Hardness based on solute strengthening equations (including C and N interstitial strengthening).
 
 ### What this tool DOES NOT do:
 * **No CALPHAD / DFT Solvers**: It does not run thermodynamic equilibrium phase diagrams (e.g. Thermo-Calc) or first-principles density functional theory calculations.
@@ -58,24 +61,25 @@ npm install
 npm run audit
 ```
 
-This will run the computational screening engine on the built-in candidate alloy `HEA-Config-#99`. The current executable audit remains a legacy Al-Co-Cr-Fe-Ni demonstration case; Fe-Mn-Cr-Ni-N seeds are roadmap inputs only and are not yet wired into the engine.
+This will run the computational screening engine on the built-in candidate alloy `Fe46-Mn24-Cr18-Ni10-N2`. The screening engine is fully integrated with the Fe-Mn-Cr-Ni-C-N system and automatically evaluates substitutionals-only descriptors, empirical SFE heuristic indexing, PREN, and interstitial solubility gates.
 
 ---
 
 ## 5. Example Candidate & Outputs
 
-### Example Candidate Alloy
-By default, the demo evaluates `HEA-Config-#99`:
-* **Composition**: $\text{Al}_{18}\text{Co}_{20.5}\text{Cr}_{20.5}\text{Fe}_{20.5}\text{Ni}_{20.5}$ (at.%)
+### Example Candidate Alloy (Conceptual Stress-Test Proxy)
+By default, the demo evaluates the conceptual candidate `Fe46-Mn24-Cr18-Ni10-N2` (at.%):
+* **Composition**: $\text{Fe}_{46}\text{Mn}_{24}\text{Cr}_{18}\text{Ni}_{10}\text{N}_{2}$ (at.%)
 * **Process Conditions**: Slow cooling rate of $0.6\text{ K/s}$, Vacuum Induction Melting.
 
-For reference, the JSON representation of this candidate can be found in [examples/hea_config_99.json](examples/hea_config_99.json).
+> [!IMPORTANT]
+> **Stress-Test Proxy Design**: This candidate composition deliberately overlaps exactly with the failure-proxy record `Tainan-CN-007` to serve as a **stress-test proxy**. This verifies that the safety margins, interstitial limits, phase risk boundaries, and failure-distance penalty models correctly block/reject high-risk compositions (producing a `HIGH_RISK_SCREENING_RESULT` alert).
 
 ### Generated Output Files
 Running `npm run audit` generates or updates two primary files:
 * **`logs/physics_audit_report.json`**: Complete structured JSON output including raw calculations, distance values, and step logs.
 * **`logs/physics_audit_report.md`**: Technical screening report presenting alerts, tabular parameters, and risk decisions.
-  * You can view a pre-run sample report at [examples/sample_report.md](examples/sample_report.md).
+
 
 ---
 

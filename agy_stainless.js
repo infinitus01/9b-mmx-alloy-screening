@@ -37,7 +37,7 @@ const candidate = {
 };
 
 console.log(`${CLR.bright}${CLR.cyan}========================================================================${CLR.reset}`);
-console.log(`${CLR.bright}${CLR.bgRed}   9B-MMX v0.1: [1600°C 抗高壓高溫不銹鋼] 物理合理性審計熔斷器   ${CLR.reset}`);
+console.log(`${CLR.bright}${CLR.bgRed}   9B-MMX v0.1: [1600°C 抗高壓高溫不銹鋼] 物理合理性審計工具   ${CLR.reset}`);
 console.log(`${CLR.bright}${CLR.cyan}========================================================================${CLR.reset}`);
 console.log(`${CLR.gray}當前時間: ${new Date().toISOString()}${CLR.reset}`);
 console.log(`${CLR.gray}分析方向: 不銹鋼配方耐 1600°C 抗高溫高壓結構應用審查${CLR.reset}\n`);
@@ -78,10 +78,10 @@ const runAudit = async () => {
 
   // Melting point check
   if (targetTemp >= T_liquidus_estimate) {
-    writeLine("AUDITOR", `🚨 [🚨 物理熔斷 - Level 1 Safety Gate - thermal liquefaction]`, "red");
-    writeLine("AUDITOR", `    - 物理事實：用戶指定的服務溫度 (${targetTemp}°C) 已超過該不銹鋼配方的熱力學熔點 (${T_liquidus_estimate.toFixed(1)}°C)！`, "red");
-    writeLine("AUDITOR", `    - 材料狀態：在此溫度下，該不銹鋼配方將發生 thermal liquefaction，強度降為 0，物理晶格完全崩解！`, "red");
-    writeLine("AUDITOR", "    - 審計決定：【硬性熔斷】阻斷該候選成分生成！拒絕將其寫入 Validated DB！", "red");
+    writeLine("AUDITOR", `[Level 1 Safety Gate - thermal liquefaction warning]`, "red");
+    writeLine("AUDITOR", `    - 物理事實：用戶指定的服務溫度 (${targetTemp}°C) 已超過該不銹鋼配方的熱力學熔點 (${T_liquidus_estimate.toFixed(1)}°C)。`, "red");
+    writeLine("AUDITOR", `    - 材料狀態：在此溫度下，該不銹鋼配方不再適合作為承載結構材料。`, "red");
+    writeLine("AUDITOR", "    - 審計決定：拒絕將該候選成分寫入 Validated DB。", "red");
     await sleep(900);
   }
 
@@ -96,28 +96,28 @@ const runAudit = async () => {
 
   writeLine("AUDITOR", `[高壓蠕變分析] 同系溫度 Th = T_service / T_melt = ${T_homologous.toFixed(3)} (結構載荷安全臨界值 Th < 0.5)。`, "yellow");
   writeLine("AUDITOR", `    - 承受壓力: ${candidate.service_parameters.pressure_MPa} MPa`, "yellow");
-  writeLine("AUDITOR", `    - 結果：Th = 1.01 (完全處於熔融態)，高溫蠕變滑移速率為無限大。結構將在微秒內發生高壓剪切崩潰！`, "red");
+  writeLine("AUDITOR", `    - 結果：Th = 1.01 (處於熔融態)，該條件已超出固態蠕變模型可用範圍，應視為結構失效。`, "red");
   await sleep(800);
 
   // 5. Electronic Developer evaluates Refractory bypass option
   writeLine("DEVELOPER", "調用 surrogate hardness estimate model 在潛在空間進行邊界擴展搜尋...", "default");
   await sleep(800);
-  writeLine("DEVELOPER", "警告：鐵基 (Fe-base) 物理天花板已達極限。建議將搜尋成分空間全面轉移至【難熔高熵合金 (Refractory HEAs)】！", "yellow");
+  writeLine("DEVELOPER", "警告：此條件已超出鐵基 (Fe-base) 不銹鋼可用結構材料範圍。建議改評估經驗證的難熔合金或陶瓷基材料。", "yellow");
   writeLine("DEVELOPER", "    - 建議難熔成分基體: 鎢 (W, Tm=3422°C) - 鉬 (Mo, Tm=2623°C) - 鉭 (Ta, Tm=3020°C) - 鈮 (Nb, Tm=2477°C)", "green");
   await sleep(800);
 
   // 6. Translator synthesizes report and guides path
-  writeLine("TRANSLATOR", "【9B-MMX 飛控電腦：1600°C高溫高壓風險導航與方向修正報告】", "cyan");
-  console.log(`\n${CLR.bright}${CLR.bgYellow}【 9B-MMX 飛控診斷與修正指南 】${CLR.reset}`);
+  writeLine("TRANSLATOR", "【9B-MMX：1600°C高溫高壓風險導航與方向修正報告】", "cyan");
+  console.log(`\n${CLR.bright}${CLR.bgYellow}【 9B-MMX 材料計算篩選與修正指南 】${CLR.reset}`);
   console.log(`[候選材料] ${candidate.alloy_name} (奧氏體不銹鋼方向)`);
-  console.log(`[驗證狀態] ${CLR.red}❌ 物理合理性閘門強制熔斷 (Liquefaction Catastrophe)${CLR.reset}`);
-  console.log(`[致命衝突] 服務溫度 1600°C ＞ 材料熔點 ${T_liquidus_estimate.toFixed(1)}°C。鐵基合金在高於其熔點時會完全熔化。`);
-  console.log(`[高壓狀態] 350 MPa 高壓將導致固液混合態或熔融態材料瞬間發生噴濺與流體力學失效。`);
-  console.log(`\n${CLR.bright}${CLR.blue}💡 9B-MMX 治理層給予人類工程師的「風險導航修正方向」：${CLR.reset}`);
-  console.log(`    1. ${CLR.green}難熔高熵合金 (Refractory HEA) 路線${CLR.reset}：放棄鐵基不銹鋼，改用鎢-鉬-鉭-鈮 (W-Mo-Ta-Nb) 體系。預估熔點 > 2500°C，在 1600°C 下 Th ≈ 0.67，結合高溫抗蠕變析出強化相，才具備抗高壓載荷能力。`);
+  console.log(`[驗證狀態] ${CLR.red}物理合理性閘門拒絕 (Thermal Liquefaction Risk)${CLR.reset}`);
+  console.log(`[主要衝突] 服務溫度 1600°C ＞ 材料熔點 ${T_liquidus_estimate.toFixed(1)}°C。鐵基合金在高於其熔點時會發生熔融。`);
+  console.log(`[高壓狀態] 350 MPa 高壓下，固液混合態或熔融態材料不具備可接受的結構承載能力。`);
+  console.log(`\n${CLR.bright}${CLR.blue}💡 9B-MMX 物理合理性審核給出的建議修正方向：${CLR.reset}`);
+  console.log(`    1. ${CLR.green}難熔合金或 Refractory HEA 路線${CLR.reset}：放棄鐵基不銹鋼，改用經驗證的鎢-鉬-鉭-鈮 (W-Mo-Ta-Nb) 等高熔點體系，並另行執行高溫蠕變與氧化驗證。`);
   console.log(`    2. ${CLR.green}超高溫陶瓷基複合材料 (UHTCMC) 路線${CLR.reset}：例如 C/SiC (碳纖維增強碳化矽) 或 ZrB2-SiC (二硼化鋯-碳化矽)，耐溫可達 1800°C 以上。`);
   console.log(`    3. ${CLR.green}熱障塗層 (TBCs) 輔助${CLR.reset}：如果必須保留內部金屬結構，必須設計多層釔穩定氧化鋯 (YSZ) 隔熱塗層與內部主動冷氣通道，將金屬工作溫度降至 1100°C 以下。`);
-  console.log(`\n${CLR.gray}※ 物理一致性約束：此項物理缺陷與熔點崩塌為熱力學必然。禁止以模擬數值強行宣稱不銹鋼可承受 1600°C 結構載荷。※${CLR.reset}\n`);
+  console.log(`\n${CLR.gray}※ 物理一致性約束：此條件超出鐵基不銹鋼可用結構材料範圍，不應以模擬數值替代實體高溫驗證。※${CLR.reset}\n`);
 
   // Write custom report file to logs/physics_audit_report.json
   const report = {
@@ -154,7 +154,7 @@ const runAudit = async () => {
     JSON.stringify(report, null, 2), 
     'utf8'
   );
-  console.log(`${CLR.green}[✔] 1600°C 不銹鋼崩潰審核報告已成功寫入 logs/physics_audit_report.json${CLR.reset}\n`);
+  console.log(`${CLR.green}[✔] 1600°C 不銹鋼高溫風險審核報告已成功寫入 logs/physics_audit_report.json${CLR.reset}\n`);
 };
 
 function writeLine(role, msg, colorType) {

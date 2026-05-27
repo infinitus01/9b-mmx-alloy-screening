@@ -1,6 +1,6 @@
 # Methodology: Computational HEA Screening & Risk Indicators
 
-This document describes the underlying descriptors, rule-based screening thresholds, and historical failure-distance penalty equations used in the **9B-MMX** screening prototype. All calculations represent pre-screening heuristics intended for risk reduction; they are **not** predictive of final physical material performance and must not substitute for physical melting and experimental characterization.
+This document describes the underlying descriptors, rule-based screening thresholds, and historical/proxy failure-distance penalty equations used in the **9B-MMX** screening prototype. All calculations represent pre-screening heuristics intended for risk reduction; they are **not** predictive of final physical material performance and must not substitute for physical melting and experimental characterization.
 
 ---
 
@@ -69,6 +69,43 @@ Where:
 
 ---
 
+### 1.5. Stacking Fault Energy Heuristic Index ($SFE$)
+The Stacking Fault Energy (SFE) controls the dominant deformation mechanisms under strain, specifically transformation-induced plasticity (TRIP) versus twinning-induced plasticity (TWIP). For Fe-Mn-Cr-Ni-C-N alloys, SFE is estimated using a linear empirical weight percent (wt.%) heuristic:
+
+$$SFE = 25.7 + 2.0 w_{\text{Ni}} - 0.9 w_{\text{Cr}} - 0.1 w_{\text{Mn}} + 30.0 w_{\text{C}} - 15.0 w_{\text{N}} + 5.0 w_{\text{Al}} - 1.5 w_{\text{Co}}$$
+
+Where:
+* $w_i$ represents the weight percentage (wt.%) of element $i$, converted from atomic percentages via molar masses.
+
+**Heuristic Bounds:**
+* $15 \le SFE \le 40\text{ mJ/m}^2$: Corresponds to the transition between TRIP and TWIP regimes, facilitating deformation twinning and high work-hardening capabilities.
+
+---
+
+### 1.6. Pitting Resistance Equivalent Number ($PREN$)
+The Pitting Resistance Equivalent Number (PREN) provides a conceptual index for pitting corrosion resistance in chloride environments, calculated using weight percentages:
+
+$$PREN = w_{\text{Cr}} + 16 w_{\text{N}}$$
+
+**Heuristic Bounds:**
+* $PREN \ge 25$: Conceptually indicates enhanced localized corrosion resistance for structural alloy prototypes.
+
+---
+
+### 1.7. Interstitial Solubility and Precipitation Risk
+To handle carbon and nitrogen interstitial co-doping, the tool segregates interstitial thermodynamics and solubility gates from traditional substitutional solid solutions:
+
+1. **Solubility Gates (at.%)**:
+   * Nitrogen: $c_{\text{N}} \le 1.5 + 0.04 c_{\text{Cr}}$
+   * Carbon: $c_{\text{C}} \le 1.2$
+   * Total Interstitial: $c_{\text{C}} + c_{\text{N}} \le 3.0$
+2. **Interstitial Precipitation Risk ($\Delta H_{\text{int-sub}}$)**:
+   * Captures the strong pairing enthalpies between substitutional elements ($s$) and interstitials ($in$):
+     $$\Delta H_{\text{int-sub}} = \sum_{s} \sum_{in} 4 |\Delta H_{s-in}^{\text{mix}}| x_s x_{in}$$
+   * Highly negative enthalpies indicate a significant thermodynamic driving force for grain-boundary nitride/carbide formation (e.g. $Cr_2N$, $M_{23}C_6$), triggering sensitization and intergranular embrittlement.
+
+---
+
 ## 2. Rule-Based Phase-Risk Flags
 
 Rather than physical XRD/SEM crystal structure measurements, the tool applies binary rule boundaries to flag potential structural failure risks:
@@ -100,6 +137,6 @@ The threshold value of $P_{\text{foundry}} \ge 0.25$ is a **heuristic safeguard*
 
 > [!WARNING]
 > **Heuristic Disclaimer & Small Dataset Warning**
-> 1. **Small Sample Dataset**: The historical database is small (only 6 historical failures). Therefore, a low penalty score $P_{\text{foundry}} < 0.25$ **does not** guarantee a success; it merely means it does not closely match a known catastrophic failure.
-> 2. **Surrogate Estimations**: Hardness calculations ($HV = 180 + 12.5 c_{\text{Al}} + 4.2 c_{\text{Cr}} - 30 [\text{if } CR < 1]$) are simple linear heuristics, not trained deep learning model outputs.
+> 1. **Small Sample Dataset**: The current failure/proxy database is small (8 records, including conceptual stress-test proxies). Therefore, a low penalty score $P_{\text{foundry}} < 0.25$ **does not** guarantee a success; it merely means it does not closely match a known failure or proxy failure condition.
+> 2. **Surrogate Estimations**: Hardness calculations ($HV = 150 + 12.5 c_{\text{Al}} + 3.5 c_{\text{Cr}} + 2.8 c_{\text{Mn}} + 85.0 c_{\text{N}} + 120.0 c_{\text{C}} - 25 [\text{if } CR < 1.0]$) are simple linear solid-solution heuristics, not trained deep learning model outputs.
 > 3. **Raw-Material Cost Index**: The raw material cost is an approximate weighted index calculated directly from atomic percentages (at.%), not actual mass weight fractions. It is an index for ranking, not a direct market price estimate.
