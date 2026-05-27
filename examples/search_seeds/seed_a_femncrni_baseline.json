@@ -1,0 +1,22 @@
+{
+  "seed_id": "seed_a_femncrni_baseline",
+  "name": "Fe-Mn-Cr-Ni Baseline Concept",
+  "system": "Fe-Mn-Cr-Ni",
+  "description": "Baseline quaternary composition representing a conceptual high-entropy steel matrix for future structural application exploration.",
+  "status": "conceptual_roadmap_only",
+  "disclaimer": "This composition is a conceptual search seed only and is not yet calibrated against a validated thermodynamic, corrosion, cryogenic, weldability, or hydrogen embrittlement model.",
+  "composition_at_pct": {
+    "Fe": 48.0,
+    "Mn": 24.0,
+    "Cr": 18.0,
+    "Ni": 10.0,
+    "N": 0.0
+  },
+  "metadata": {
+    "target_structure": "FCC solid-solution matrix",
+    "intended_strengthening_mechanisms": [
+      "Substitutional solid solution hardening",
+      "Deformation-induced twinning (TWIP)"
+    ]
+  }
+}

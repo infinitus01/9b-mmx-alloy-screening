@@ -1,0 +1,23 @@
+{
+  "seed_id": "seed_b_al_perturbation_proxy",
+  "name": "Al-Perturbed Fe-Mn-Cr-Ni Modification Concept",
+  "system": "Al-Fe-Mn-Cr-Ni",
+  "description": "Low-criticality modification concept incorporating a minor aluminum addition to perturb stacking fault energy (SFE) and evaluate phase-risk stability boundaries.",
+  "status": "conceptual_roadmap_only",
+  "disclaimer": "This composition is a conceptual search seed only and is not yet calibrated against a validated thermodynamic, corrosion, cryogenic, weldability, or hydrogen embrittlement model.",
+  "composition_at_pct": {
+    "Al": 2.0,
+    "Fe": 47.0,
+    "Mn": 23.0,
+    "Cr": 18.0,
+    "Ni": 10.0,
+    "N": 0.0
+  },
+  "metadata": {
+    "target_structure": "FCC solid-solution matrix with minor Al perturbation",
+    "intended_strengthening_mechanisms": [
+      "Substitutional solid solution hardening",
+      "Stacking fault energy (SFE) tuning"
+    ]
+  }
+}

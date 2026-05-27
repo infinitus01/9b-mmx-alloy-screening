@@ -1,0 +1,22 @@
+{
+  "seed_id": "seed_c_nitrogen_proxy",
+  "name": "Nitrogen-Doped Fe-Mn-Cr-Ni Stress-Test Proxy",
+  "system": "Fe-Mn-Cr-Ni-N",
+  "description": "Conceptual high-nitrogen interstitial structural steel candidate designed as a computational stress-test proxy.",
+  "status": "conceptual_stress_test_only",
+  "disclaimer": "This composition is a conceptual search seed only and is not yet calibrated against a validated thermodynamic, corrosion, cryogenic, weldability, or hydrogen embrittlement model. IMPORTANT: N = 2 at.% is a computational stress-test proxy only and should not be interpreted as a practical melt composition.",
+  "composition_at_pct": {
+    "Fe": 46.0,
+    "Mn": 24.0,
+    "Cr": 18.0,
+    "Ni": 10.0,
+    "N": 2.0
+  },
+  "metadata": {
+    "target_structure": "Interstitial-strengthened FCC matrix",
+    "intended_strengthening_mechanisms": [
+      "Interstitial solid solution hardening",
+      "Stacking fault energy (SFE) minimization for TRIP/TWIP activation"
+    ]
+  }
+}

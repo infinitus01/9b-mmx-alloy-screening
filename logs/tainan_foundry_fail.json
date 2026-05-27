@@ -1,0 +1,150 @@
+[
+  {
+    "id": "Tainan-VIM-001",
+    "alloy_name": "AlCoCrFeNi_equiatomic",
+    "composition": {
+      "Al": 20.0,
+      "Co": 20.0,
+      "Cr": 20.0,
+      "Fe": 20.0,
+      "Ni": 20.0
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 0.5,
+      "heat_treatment_temp_C": 1100,
+      "work_stress_MPa": 50,
+      "melting_atmosphere": "Vacuum_Induction"
+    },
+    "defect_type": "LTM_THERMO_DEAD_ZONE",
+    "defect_details": "Severe precipitation of brittle ordered B2/sigma phases under low cooling rates. Macro-cracks observed immediately after solidifying.",
+    "severity_weight": 0.95,
+    "kernel_bandwidth": 3.5,
+    "timestamp": "2026-04-10T14:32:00Z"
+  },
+  {
+    "id": "Tainan-VAR-002",
+    "alloy_name": "CoCr1.8FeNi",
+    "composition": {
+      "Al": 0.0,
+      "Co": 20.0,
+      "Cr": 35.0,
+      "Fe": 22.5,
+      "Ni": 22.5
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 2.0,
+      "heat_treatment_temp_C": 850,
+      "work_stress_MPa": 280,
+      "melting_atmosphere": "Vacuum_Arc"
+    },
+    "defect_type": "MTM_PROCESS_RISK",
+    "defect_details": "Critical high-temperature thermal cracking. Heavy Cr segregation at grain boundaries triggering high stress corrosion cracks.",
+    "severity_weight": 0.82,
+    "kernel_bandwidth": 4.2,
+    "timestamp": "2026-05-02T09:15:00Z"
+  },
+  {
+    "id": "Tainan-DCC-003",
+    "alloy_name": "Al0.3CoCrFeNi_Slow_Cool",
+    "composition": {
+      "Al": 6.8,
+      "Co": 23.3,
+      "Cr": 23.3,
+      "Fe": 23.3,
+      "Ni": 23.3
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 0.08,
+      "heat_treatment_temp_C": 600,
+      "work_stress_MPa": 150,
+      "melting_atmosphere": "Argon_Cover"
+    },
+    "defect_type": "STM_OPERATOR_NOISE",
+    "defect_details": "Dendrite macrosegregation of Al and Ni at the bottom ingot due to extremely low cooling rate, aggravated by slightly unstable vacuum level.",
+    "severity_weight": 0.45,
+    "kernel_bandwidth": 2.8,
+    "timestamp": "2026-05-20T17:40:00Z"
+  },
+  {
+    "id": "Virt-RHEA-Fail-004",
+    "alloy_name": "RHEA-W-Mo-Ta-Nb-Ti_Balanced",
+    "composition": {
+      "Al": 0.0,
+      "Co": 0.0,
+      "Cr": 0.0,
+      "Fe": 0.0,
+      "Ni": 0.0,
+      "W": 20.0,
+      "Mo": 20.0,
+      "Ta": 20.0,
+      "Nb": 20.0,
+      "Ti": 20.0
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 10.0,
+      "heat_treatment_temp_C": 1600,
+      "work_stress_MPa": 350,
+      "melting_atmosphere": "Vacuum_Arc_VAR"
+    },
+    "defect_type": "MTM_PROCESS_RISK",
+    "defect_details": "[RHEA首航熔斷] 鈦(Ti)元素引入拉低熔點至 2368°C，導致 1600°C 下同系溫度 Th = 0.709 超標，高溫高壓下發生晶界剪切滑移與蠕變失效。",
+    "severity_weight": 0.80,
+    "kernel_bandwidth": 3.0,
+    "timestamp": "2026-05-27T01:10:00Z"
+  },
+  {
+    "id": "Virt-RHEA-Fail-005",
+    "alloy_name": "RHEA-Nb-Ti-V-Ta_Ductile",
+    "composition": {
+      "Al": 0.0,
+      "Co": 0.0,
+      "Cr": 0.0,
+      "Fe": 0.0,
+      "Ni": 0.0,
+      "W": 0.0,
+      "Mo": 0.0,
+      "Ta": 25.0,
+      "Nb": 25.0,
+      "Ti": 25.0,
+      "V": 25.0
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 10.0,
+      "heat_treatment_temp_C": 1600,
+      "work_stress_MPa": 350,
+      "melting_atmosphere": "Vacuum_Arc_VAR"
+    },
+    "defect_type": "MTM_PROCESS_RISK",
+    "defect_details": "[RHEA首航熔斷] 無鎢/鉬保護，合金熔點降至 1995°C，1600°C 同系溫度 Th = 0.826 極度軟化，結構瞬時蠕變崩塌。",
+    "severity_weight": 0.88,
+    "kernel_bandwidth": 4.0,
+    "timestamp": "2026-05-27T01:10:00Z"
+  },
+  {
+    "id": "Virt-RHEA-Fail-006",
+    "alloy_name": "RHEA-W-Mo-Cr-Ti_LowDensity",
+    "composition": {
+      "Al": 0.0,
+      "Co": 0.0,
+      "Cr": 20.0,
+      "Fe": 0.0,
+      "Ni": 0.0,
+      "W": 30.0,
+      "Mo": 30.0,
+      "Ta": 0.0,
+      "Nb": 0.0,
+      "Ti": 20.0
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 10.0,
+      "heat_treatment_temp_C": 1600,
+      "work_stress_MPa": 350,
+      "melting_atmosphere": "Vacuum_Arc_VAR"
+    },
+    "defect_type": "MTM_PROCESS_RISK",
+    "defect_details": "[RHEA首航熔斷] 輕量鉻(Cr)與鈦(Ti)熔點偏低，同系溫度 Th = 0.741 超過安全限制，高溫蠕變承載力不足。",
+    "severity_weight": 0.75,
+    "kernel_bandwidth": 3.2,
+    "timestamp": "2026-05-27T01:10:00Z"
+  }
+]

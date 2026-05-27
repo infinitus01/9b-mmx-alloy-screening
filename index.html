@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>9B-MMX v0.1: 非同步虛實材料治理與失敗記憶主控台 (Async Cyber-Physical Materials Governance)</title>
+  <!-- Google Fonts for professional tech visuals -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Share+Tech+Mono&family=Orbitron:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- Background Grid & Cyber Glows -->
+  <div class="cyber-grid"></div>
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <!-- Main Cockpit Layout -->
+  <div class="cockpit-container">
+    
+    <!-- Top Flight Control Bar -->
+    <header class="flight-header">
+      <div class="brand">
+        <span class="status-indicator online pulsing"></span>
+        <h1 id="main-title">9B-MMX v0.1 <span class="accent-text">治理航空電腦</span></h1>
+        <p class="tagline">Cyber-Physical Materials Flight Control Console</p>
+      </div>
+
+      <!-- Asynchronous Clock & Epoch Synchronization -->
+      <div class="clock-deck">
+        <div class="clock-card" id="virtual-clock">
+          <span class="clock-label">高頻虛擬推演時鐘 (τ_virt)</span>
+          <span class="clock-value">0 ms</span>
+          <span class="clock-badge fast-badge">高頻迭代中</span>
+        </div>
+        <div class="clock-arrow">⇄</div>
+        <div class="clock-card" id="physical-clock">
+          <span class="clock-label">低頻實體冶煉時鐘 (τ_phys)</span>
+          <span class="clock-value">1 Heat (Tainan)</span>
+          <span class="clock-badge slow-badge">製程緩慢</span>
+        </div>
+      </div>
+
+      <!-- Security Level Gate -->
+      <div class="security-gate">
+        <span class="sec-label">安全防禦級別</span>
+        <span class="sec-value" id="security-level-indicator">Level 1 Safety Gate (最高限制)</span>
+        <span class="sec-badge">唯讀沙盒</span>
+      </div>
+    </header>
+
+    <!-- Main Workspace Content -->
+    <main class="cockpit-grid">
+      
+      <!-- LEFT PANEL: Candidate Alloy Spec & CMEP Bypass -->
+      <section class="cockpit-panel panel-left" id="panel-alloy-composition">
+        <div class="panel-header">
+          <span class="panel-icon">⚛</span>
+          <h2>候選成分與製程配置 (HEA Spec)</h2>
+        </div>
+        
+        <div class="panel-body">
+          <!-- Alloy Composition Inputs -->
+          <div class="input-group">
+            <h3>高熵合金主元素佔比 (Atomic %)</h3>
+            <div class="slider-row">
+              <label for="range-al">鋁 (Al): <span class="val-display" id="val-al">18.0</span> at.%</label>
+              <input type="range" id="range-al" min="0" max="100" step="0.1" value="18.0">
+            </div>
+            <div class="slider-row">
+              <label for="range-co">鈷 (Co): <span class="val-display" id="val-co">20.5</span> at.%</label>
+              <input type="range" id="range-co" min="0" max="100" step="0.1" value="20.5">
+            </div>
+            <div class="slider-row">
+              <label for="range-cr">鉻 (Cr): <span class="val-display" id="val-cr">20.5</span> at.%</label>
+              <input type="range" id="range-cr" min="0" max="100" step="0.1" value="20.5">
+            </div>
+            <div class="slider-row">
+              <label for="range-fe">鐵 (Fe): <span class="val-display" id="val-fe">20.5</span> at.%</label>
+              <input type="range" id="range-fe" min="0" max="100" step="0.1" value="20.5">
+            </div>
+            <div class="slider-row">
+              <label for="range-ni">鎳 (Ni): <span class="val-display" id="val-ni">20.5</span> at.%</label>
+              <input type="range" id="range-ni" min="0" max="100" step="0.1" value="20.5">
+            </div>
+
+            <!-- Composition Audit Bar -->
+            <div class="composition-summary">
+              <div class="progress-container">
+                <div class="progress-bar" id="composition-progress"></div>
+              </div>
+              <div class="summary-details">
+                <span>總佔比: <strong id="total-percentage">100.00</strong> %</span>
+                <span class="status-tag status-success" id="sum-status">✔ 精確守恆</span>
+              </div>
+              <button class="btn btn-secondary btn-sm" id="btn-normalize">⚖ 一鍵自動守恆歸一化</button>
+            </div>
+          </div>
+
+          <hr class="panel-divider">
+
+          <!-- Metallurgical Process Parameters -->
+          <div class="input-group">
+            <h3>冶煉製程配置參數 (Process Configuration)</h3>
+            
+            <div class="form-row">
+              <div class="form-col">
+                <label for="input-cooling-rate">冷卻速率 (K/s)</label>
+                <input type="number" id="input-cooling-rate" min="0.01" max="1000" step="0.01" value="0.60">
+                <span class="input-help">影響偏析與結晶尺寸</span>
+              </div>
+              <div class="form-col">
+                <label for="input-heat-temp">熱處理溫度 (°C)</label>
+                <input type="number" id="input-heat-temp" min="100" max="2500" step="50" value="1050">
+                <span class="input-help">影響相溶解度與析出</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-col">
+                <label for="input-stress">工作應力 (MPa)</label>
+                <input type="number" id="input-stress" min="0" max="1500" step="10" value="60">
+              </div>
+              <div class="form-col">
+                <label for="input-atmosphere">冶煉氣氛與工藝</label>
+                <select id="input-atmosphere">
+                  <option value="Vacuum_Induction" selected>真空感應熔煉 (VIM)</option>
+                  <option value="Vacuum_Arc">真空電弧熔煉 (VAR)</option>
+                  <option value="Argon_Cover">氬氣保護 ingot 鑄造</option>
+                  <option value="Direct_Chill">直接冷卻半連續鑄造 (DCC)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <hr class="panel-divider">
+
+          <!-- CMEP METASTABLE Exploration Protocol Bypass -->
+          <div class="cmep-bypass-card" id="cmep-override-section">
+            <div class="cmep-header">
+              <span class="cmep-badge warning-pulse">CMEP BYPASS</span>
+              <h3>受控亞穩態探索協議 (CMEP)</h3>
+            </div>
+            <p class="cmep-desc">允許物理描述符臨界偏離以搜尋高熵合金的非平衡態與亞穩超導能帶結構，但將鎖定已驗證材料庫的寫入權限。</p>
+            
+            <div class="cmep-controls">
+              <div class="toggle-container">
+                <button class="btn btn-danger btn-block" id="btn-cmep-toggle">
+                  <span class="lock-icon">🔒</span> 啟動 CMEP 非平衡探索旁路閥門
+                </button>
+              </div>
+              <div class="cmep-status-row hide" id="cmep-active-stats">
+                <div class="stat-badge">剩餘步數: <span id="cmep-countdown">500</span> 次</div>
+                <div class="stat-badge alert-text">描述符偏離容差: 允許漂移</div>
+                <div class="stat-badge success-text">隔離沙盒狀態: 強制隔離</div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </section>
+
+      <!-- MIDDLE PANEL: Brain Audit Console & Dynamic Logs -->
+      <section class="cockpit-panel panel-middle" id="panel-governance-audit">
+        <div class="panel-header">
+          <span class="panel-icon">🧠</span>
+          <h2>飛控電腦九腦治理層 (9-Brain Flight Computer)</h2>
+        </div>
+
+        <div class="panel-body flex-column">
+          <!-- Physics Descriptor Grid -->
+          <div class="descriptor-readout-grid">
+            <div class="readout-card">
+              <span class="readout-title">價電子濃度 VEC</span>
+              <span class="readout-val" id="desc-vec">7.305</span>
+              <span class="readout-status success-text" id="desc-vec-status">臨界析出區</span>
+            </div>
+            <div class="readout-card">
+              <span class="readout-title">原子半徑偏差 δ</span>
+              <span class="readout-val" id="desc-delta">5.247%</span>
+              <span class="readout-status warning-text" id="desc-delta-status">中等偏析風險</span>
+            </div>
+            <div class="readout-card">
+              <span class="readout-title">混合焓 ΔH_mix</span>
+              <span class="readout-val" id="desc-dhmix">-11.67 kJ/mol</span>
+              <span class="readout-status error-text" id="desc-dhmix-status">中等熱力學驅動力</span>
+            </div>
+            <div class="readout-card">
+              <span class="readout-title">熵能參數 Ω</span>
+              <span class="readout-val" id="desc-omega">1.950</span>
+              <span class="readout-status success-text" id="desc-omega-status">固溶相穩定度</span>
+            </div>
+          </div>
+
+          <!-- Crystal Phase Prediction Overlay -->
+          <div class="phase-prediction-banner">
+            <span class="banner-label">晶格結構特徵預測:</span>
+            <strong class="banner-value" id="predicted-phase-value">Mixed FCC + BCC Phase (B2/σ脆性析出潛在區)</strong>
+          </div>
+
+          <!-- Live 9-Brain Consensus Console Terminal -->
+          <div class="terminal-container">
+            <div class="terminal-header">
+              <div class="terminal-dots">
+                <span class="dot red-dot"></span>
+                <span class="dot yellow-dot"></span>
+                <span class="dot green-dot"></span>
+              </div>
+              <span class="terminal-title">9B-MMX 權責隔離審計主機日誌 [AGENTS.md Enforced]</span>
+              <button class="btn btn-secondary btn-xs" id="btn-clear-logs">清除日誌</button>
+            </div>
+            
+            <div class="terminal-body" id="audit-terminal-logs">
+              <!-- Scrollable logs populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- Audit Trigger & Action bar -->
+          <div class="action-bar">
+            <button class="btn btn-primary btn-lg btn-glow" id="btn-run-audit">
+              ⚡ 立即執行非同步物理一致性審核 (Run 9B-MMX Audit)
+            </button>
+            <button class="btn btn-secondary btn-lg" id="btn-open-agents-config">
+              ⚙ 編輯 AGENTS.md 配置
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL: Foundry Feedback repelling field & Latent space -->
+      <section class="cockpit-panel panel-right" id="panel-failure-repulsion">
+        <div class="panel-header">
+          <span class="panel-icon">🛡</span>
+          <h2>失敗記憶庫與反饋核心 (Failure Memory)</h2>
+        </div>
+
+        <div class="panel-body">
+          <!-- Defect repelled terrain (Penalty field map) -->
+          <div class="chart-container">
+            <div class="chart-header">
+              <h3>高維度失敗known failure region分佈圖 (Foundry Feedback Kernel Map)</h3>
+              <span class="danger-level-badge level-high" id="foundry-score-badge">P_foundry = 0.5284 (高風險)</span>
+            </div>
+            
+            <!-- Map canvas -->
+            <div class="failure-map-wrapper">
+              <canvas id="failure-kernel-canvas" width="380" height="240"></canvas>
+              <div class="map-coordinates-legend">
+                <span>← 延展相 (BCC富集)</span>
+                <span>複合相 (偏析區)</span>
+                <span>脆化相 (高Al) →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- surrogate hardness estimate Space -->
+          <div class="vibann-container">
+            <div class="vibann-header">
+              <h3>surrogate hardness estimate 代理模型預估與潛在漂移 (VIB Latent Gate)</h3>
+              <span class="status-tag status-danger hide" id="ood-tag">[OOD_EXTREME_PROTOTYPE]</span>
+            </div>
+            
+            <div class="vibann-stats-row">
+              <div class="vib-stat-box">
+                <span class="vib-stat-label">預估維氏硬度 HV</span>
+                <span class="vib-stat-value success-text" id="pred-hardness">371.1</span>
+              </div>
+              <div class="vib-stat-box">
+                <span class="vib-stat-label">潛在特徵漂移 (Drift)</span>
+                <span class="vib-stat-value" id="pred-drift">1.42 Å</span>
+              </div>
+              <div class="vib-stat-box">
+                <span class="vib-stat-label">物理排斥力</span>
+                <span class="vib-stat-value alert-text" id="pred-penalty-repell">HIGH (高)</span>
+              </div>
+            </div>
+          </div>
+
+          <hr class="panel-divider">
+
+          <!-- Add real Tainan foundry failure input -->
+          <div class="add-failure-section">
+            <h3>將實體失败回灌為懲罰核 (Feed In Foundry Failure)</h3>
+            <p class="section-desc">將台南製程實體試熔 (Initial Computational Evaluation Phase) 的裂紋或缺陷金相，反向注入為高維搜尋空間中的懲罰核心。</p>
+            
+            <form id="form-add-failure" onsubmit="return false;">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="fail-alloy">合金配方</label>
+                  <input type="text" id="fail-alloy" placeholder="例: Al0.9CoCrFeNi" required>
+                </div>
+                <div class="form-col">
+                  <label for="fail-type">缺陷記憶分級</label>
+                  <select id="fail-type">
+                    <option value="LTM_THERMO_DEAD_ZONE">長期熱力學死路 (LTM_THERMO)</option>
+                    <option value="MTM_PROCESS_RISK">中期工藝風險區 (MTM_PROCESS)</option>
+                    <option value="STM_OPERATOR_NOISE">短期人為或數據雜訊 (STM_NOISE)</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="fail-al">Al %</label>
+                  <input type="number" id="fail-al" min="0" max="100" value="22" required>
+                </div>
+                <div class="form-col">
+                  <label for="fail-cr">Cr %</label>
+                  <input type="number" id="fail-cr" min="0" max="100" value="19" required>
+                </div>
+                <div class="form-col">
+                  <label for="fail-cooling">冷卻速率 (K/s)</label>
+                  <input type="number" id="fail-cooling" min="0.01" max="100" value="0.5" step="0.1" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="fail-details">金相缺陷描述</label>
+                  <input type="text" id="fail-details" placeholder="例: 析出大量 σ 脆性相，試片嚴重斷裂" required>
+                </div>
+              </div>
+
+              <button class="btn btn-secondary btn-block" id="btn-submit-failure">
+                ⚠️ 將台南開爐失敗數據轉化為實體反饋核
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- AGENTS.md Config Modal (Sleek UI popup) -->
+    <div class="modal" id="agents-config-modal">
+      <div class="modal-content glassmorphism">
+        <div class="modal-header">
+          <h3>🔧 AGENTS.md 系統配置編輯器</h3>
+          <span class="close-modal" id="close-config-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <textarea id="textarea-agents-config" rows="18" class="config-editor-area"></textarea>
+          <div class="modal-actions">
+            <button class="btn btn-secondary" id="btn-reset-config">恢復預設</button>
+            <button class="btn btn-primary" id="btn-save-config">✔ 保存配置並重新編譯飛控核心</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Final Risk Navigation Report (Blinks on completion) -->
+    <footer class="cockpit-footer">
+      <div class="report-ticker">
+        <span class="ticker-badge ticker-warning">風險警報</span>
+        <div class="ticker-text" id="footer-report-summary">
+          飛控電腦狀態: 等待指令。請點擊「立即執行非同步物理一致性審核」按鈕啟動九腦決策鏈。
+        </div>
+      </div>
+      <div class="system-stats">
+        <span>虛擬吞吐率: <strong id="virt-throughput">12.8M candidates/s</strong></span>
+        <span>實體熔爐進度: <strong id="phys-ingots">3 Ingots Failed</strong></span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

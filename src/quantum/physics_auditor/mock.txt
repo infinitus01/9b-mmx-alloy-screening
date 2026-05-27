@@ -1,0 +1,1 @@
+Physics auditor source directory. Isolated write zone for the Physics_Consistency_Auditor role.

@@ -1,0 +1,1 @@
+Candidate generator source directory. Isolated write zone for the Candidate_Architect role.

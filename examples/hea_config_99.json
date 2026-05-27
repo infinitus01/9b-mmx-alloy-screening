@@ -1,0 +1,16 @@
+{
+  "alloy_name": "HEA-Config-#99",
+  "composition": {
+    "Al": 18.0,
+    "Co": 20.5,
+    "Cr": 20.5,
+    "Fe": 20.5,
+    "Ni": 20.5
+  },
+  "process": {
+    "cooling_rate_K_s": 0.6,
+    "heat_treatment_temp_C": 1050,
+    "work_stress_MPa": 60,
+    "melting_atmosphere": "Vacuum_Induction"
+  }
+}
