@@ -1,27 +1,27 @@
-# Search Direction: Nitrogen-Alloyed Fe-Mn-Cr-Ni-N Structural Alloys
+# Search Direction: C/N-Interstitial Fe-Mn-Cr-Ni-C-N Structural Alloys
 
 This document outlines the search direction for the fully integrated Fe-Mn-Cr-Ni-C-N metastable structural alloy screening console, transitioning from the legacy Al-Co-Cr-Fe-Ni system. These candidates represent low-criticality, high-strength structural materials.
 
 > [!IMPORTANT]
 > **Model Calibration and Safety Disclaimer**
-> The Fe-Mn-Cr-Ni-N compositions provided as search seeds are purely conceptual computational stress-test proxies. They are **not** currently calibrated against validated thermodynamic (CALPHAD), corrosion, cryogenic, weldability, or hydrogen embrittlement models. Do not interpret these proxy seeds as practical melt recommendations or validated materials designs.
+> The Fe-Mn-Cr-Ni-C-N compositions provided as search seeds are purely conceptual computational stress-test proxies. They are **not** currently calibrated against validated thermodynamic (CALPHAD), corrosion, cryogenic, weldability, or hydrogen embrittlement models. Do not interpret these proxy seeds as practical melt recommendations or validated materials designs.
 
 ---
 
-## 1. Scientific Rationales for the Fe-Mn-Cr-Ni-N System
+## 1. Scientific Rationales for the Fe-Mn-Cr-Ni-C-N System
 
-The transition to the Fe-Mn-Cr-Ni-N system is motivated by several key physical and metallurgy principles:
+The transition to the Fe-Mn-Cr-Ni-C-N system is motivated by several key physical and metallurgy principles:
 
-### 1.1. Interstitial Strengthening by Nitrogen (N)
-Nitrogen acts as a potent interstitial solid solution strengthener in face-centered cubic (FCC) Fe-Mn-Cr-Ni matrices. 
-* Unlike substitutional elements like aluminum or chromium, interstitial nitrogen introduces a high localized shear stress field, significantly hindering dislocation movement and increasing yield strength without severely compromising ductility.
-* It increases the friction stress of the lattice and provides strong dynamic strain aging effects.
+### 1.1. Interstitial Strengthening by Carbon and Nitrogen (C/N)
+Carbon and nitrogen act as potent interstitial solid solution strengtheners in face-centered cubic (FCC) Fe-Mn-Cr-Ni matrices.
+* Unlike substitutional elements like aluminum or chromium, interstitial C/N additions introduce localized shear stress fields, significantly hindering dislocation movement and increasing yield strength.
+* Nitrogen can improve austenite stability and corrosion behavior; carbon is treated as a strengthening and carbide-sensitization stress-test variable in the Phase 2 engine.
 
 ### 1.2. Tuning Stacking Fault Energy (SFE)
-The concentration of manganese, nickel, and nitrogen carefully controls the matrix Stacking Fault Energy (SFE):
+The concentration of manganese, nickel, carbon, and nitrogen controls the matrix Stacking Fault Energy (SFE) in the current heuristic model:
 * **Transformation-Induced Plasticity (TRIP)**: Lower SFE (below $\sim 15 \text{ mJ/m}^2$) promotes deformation-induced martensitic transformation ($\gamma \rightarrow \epsilon \rightarrow \alpha'$), yielding high work-hardening rates.
 * **Twinning-Induced Plasticity (TWIP)**: Moderate SFE ($15 \sim 40 \text{ mJ/m}^2$) favors deformation twinning, which creates a dynamic Hall-Petch effect (refining the mean free path of dislocations) and leads to exceptional strength-ductility combinations.
-* Nitrogen typically decreases or maintains low SFE depending on concentration, facilitating twinning and mechanical stable transformations.
+* Nitrogen typically decreases or maintains low SFE depending on concentration, while carbon is treated as a separate interstitial strengthening perturbation requiring carbide-risk checks.
 
 ### 1.3. Pitting Resistance and Corrosion Behavior
 In chromium-containing alloys, nitrogen improves local corrosion resistance. The Pitting Resistance Equivalent Number (PREN) is traditionally calculated as:

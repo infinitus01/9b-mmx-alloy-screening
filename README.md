@@ -13,12 +13,12 @@ This repository provides a lightweight, rule-based screening prototype for multi
 
 ---
 
-## 2. Conceptual Search Direction: Fe-Mn-Cr-Ni-N Alloys
+## 2. Conceptual Search Direction: Fe-Mn-Cr-Ni-C-N Alloys
 
-As detailed in [docs/search_direction.md](docs/search_direction.md), the primary development focus of this prototype is establishing screening parameters for nitrogen-alloyed Fe-Mn-Cr-Ni-N structural steels. The repository includes three conceptual search seeds for research:
+As detailed in [docs/search_direction.md](docs/search_direction.md), the primary development focus of this prototype is establishing screening parameters for C/N-capable Fe-Mn-Cr-Ni structural steels. The repository includes three conceptual search seeds for research:
 
 * **Seed A: Fe-Mn-Cr-Ni Baseline**  
-  * Baseline quaternary composition for high-entropy structural steels.
+  * Baseline quaternary composition for multi-principal structural steels.
   * See [examples/search_seeds/seed_a_femncrni_baseline.json](examples/search_seeds/seed_a_femncrni_baseline.json).
 * **Seed B: Al Perturbation Proxy**  
   * Fe-Mn-Cr-Ni matrix with a minor aluminum addition to perturb stacking fault energy (SFE).
@@ -116,16 +116,16 @@ For exact equations and literature references, see [docs/methodology.md](docs/me
 │       └── physics_auditor/   # Physics consistency auditor isolated write zone
 ├── docs/
 │   ├── methodology.md         # Equations, boundaries, and assumptions
-│   ├── search_direction.md    # Fe-Mn-Cr-Ni-N future research roadmap
+│   ├── search_direction.md    # Fe-Mn-Cr-Ni-C-N future research roadmap
 │   └── demo_run.md            # Fact-based demo run log
 ├── logs/
-│   ├── tainan_foundry_fail.json # Historical database of 6 solidification failures
+│   ├── tainan_foundry_fail.json # Historical/proxy failure-distance records
 │   ├── physics_audit_report.json# Executed JSON run report
 │   └── physics_audit_report.md  # Compiled Markdown screening report
 └── examples/
     ├── hea_config_99.json     # Reference candidate alloy composition JSON
     ├── sample_report.md       # Pre-run sample screening report copy
-    └── search_seeds/          # Conceptual search seeds for Fe-Mn-Cr-Ni-N
+    └── search_seeds/          # Conceptual search seeds for Fe-Mn-Cr-Ni-C-N
         ├── seed_a_femncrni_baseline.json
         ├── seed_b_al_perturbation_proxy.json
         └── seed_c_nitrogen_proxy.json

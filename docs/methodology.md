@@ -1,4 +1,4 @@
-# Methodology: Computational HEA Screening & Risk Indicators
+# Methodology: Computational Alloy Screening & Risk Indicators
 
 This document describes the underlying descriptors, rule-based screening thresholds, and historical/proxy failure-distance penalty equations used in the **9B-MMX** screening prototype. All calculations represent pre-screening heuristics intended for risk reduction; they are **not** predictive of final physical material performance and must not substitute for physical melting and experimental characterization.
 
