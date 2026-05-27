@@ -9,7 +9,7 @@
 ---
 
 ## 1. Project Overview
-This repository provides a lightweight, rule-based screening prototype for high-entropy alloys (HEAs). It parses constraint parameters and calculates alloy descriptors to check stability, flag precipitation risks, and apply a distance-based penalty weight derived from a database of past solidification failures.
+This repository provides a lightweight, rule-based screening prototype for multi-principal-element and structural alloy candidates. It currently contains a legacy Al-Co-Cr-Fe-Ni descriptor demo, while the forward roadmap focuses on low-criticality Fe-Mn-Cr-Ni-N structural alloy search seeds.
 
 ---
 
@@ -93,7 +93,7 @@ For exact equations and literature references, see [docs/methodology.md](docs/me
 ## 7. Key Limitations & Risk Warnings
 * **Small Failure Database**: The sample database contains only 6 failure entries. A low penalty score does not ensure physical alloy stability; it merely signifies composition divergence from previously logged failures.
 * **Approximate Cost Index**: The raw material cost is an approximate index calculated using at.% weightings directly. It is not an exact currency cost per kilogram by mass.
-* **DBTT Warning**: Refractory HEAs are highly susceptible to elevated Ductile-to-Brittle Transition Temperatures (DBTT). Microscopic validation remains mandatory.
+* **Embrittlement Warning**: Any candidate involving high-temperature, cryogenic, hydrogen, or corrosive service requires experimental toughness, phase, corrosion, and hydrogen-compatibility validation.
 
 ---
 
