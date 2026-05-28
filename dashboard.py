@@ -11,9 +11,9 @@ import ml_optimizer
 st.set_page_config(page_title="9B-MMX Dashboard", page_icon="⚛️", layout="wide")
 
 st.title("9B-MMX: Computational Alloy Screening Dashboard")
-st.markdown("A high-throughput, heuristic-based pre-screening engine designed to instantly flag casting risks and filter metastable structural alloys before committing to expensive physical melts or heavy CALPHAD simulations.")
+st.markdown("A high-throughput, heuristic-based pre-screening engine designed to help researchers quickly triage alloy candidates and identify those requiring further review before committing to expensive physical melts or heavy CALPHAD simulations.")
 
-tab1, tab2, tab3 = st.tabs(["🎛️ Single Alloy Audit (Demo)", "📊 High-Throughput Batch Triage", "🧠 ML Optimization & Pareto Discovery"])
+tab1, tab2, tab3 = st.tabs(["🎛️ Single Alloy Audit (Demo)", "📊 High-Throughput Batch Triage", "🧠 Heuristic Surrogate Demo"])
 
 with tab1:
     st.header("Interactive Parameter Adjustment")
@@ -123,7 +123,7 @@ with tab2:
         input_path = "examples/search_seeds/validation/lit_batch_seeds.json"
         output_path = "logs/dashboard_triage_out.json"
         
-        with st.spinner("Processing thousands of heuristics in the background..."):
+        with st.spinner("Running batch heuristic triage..."):
             res = subprocess.run(["node", "agy.js", "/batch-screen", f"--input={input_path}", f"--output={output_path}"], capture_output=True, text=True)
             
         if os.path.exists(output_path):
@@ -166,7 +166,7 @@ with tab3:
                 if not df_train.empty:
                     success = st.session_state.opt.train(df_train)
                     if success:
-                        st.success("Gaussian Process Surrogate Model trained successfully!")
+                        st.success("Heuristic-label surrogate trained for demo visualization.")
                         st.session_state.df_train = df_train
                     else:
                         st.error("Training failed.")
