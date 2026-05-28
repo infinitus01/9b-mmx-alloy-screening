@@ -287,7 +287,9 @@ if (args[0] === '/batch-screen') {
   triageTable.lower_risk_screening_rank.sort((a, b) => a.screening_results.P_foundry - b.screening_results.P_foundry);
 
   // Write triage table report
-  fs.writeFileSync(path.resolve(outputPath), JSON.stringify(triageTable, null, 2), 'utf8');
+  const resolvedOutputPath = path.resolve(outputPath);
+  fs.mkdirSync(path.dirname(resolvedOutputPath), { recursive: true });
+  fs.writeFileSync(resolvedOutputPath, JSON.stringify(triageTable, null, 2), 'utf8');
 
   console.log(`\n${CLR.bright}${CLR.bgYellow}【 Candidate Triage Summary 候選分流審計結果 】${CLR.reset}`);
   console.log(`  🟢 綠色低風險區 (Lower-Risk Ranks): ${CLR.green}${triageTable.triage_summary.green_lower_risk} 筆${CLR.reset}`);

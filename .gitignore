@@ -28,3 +28,5 @@ Thumbs.db
 # Local runtime scratch and logs
 scratch/
 logs/candidate_triage_table.json
+logs/triage_report.json
+logs/*triage*.json

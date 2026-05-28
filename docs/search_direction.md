@@ -15,7 +15,7 @@ The transition to the Fe-Mn-Cr-Ni-C-N system is motivated by several key physica
 ### 1.1. Interstitial Strengthening by Carbon and Nitrogen (C/N)
 Carbon and nitrogen act as potent interstitial solid solution strengtheners in face-centered cubic (FCC) Fe-Mn-Cr-Ni matrices.
 * Unlike substitutional elements like aluminum or chromium, interstitial C/N additions introduce localized shear stress fields, significantly hindering dislocation movement and increasing yield strength.
-* Nitrogen can improve austenite stability and corrosion behavior; carbon is treated as a strengthening and carbide-sensitization stress-test variable in the Phase 2 engine.
+* Nitrogen can improve austenite stability and corrosion behavior; carbon is treated as a strengthening and carbide-sensitization stress-test variable in the Phase 3 engine (Phase 3 runtime active, still heuristic/unvalidated).
 
 ### 1.2. Tuning Stacking Fault Energy (SFE)
 The concentration of manganese, nickel, carbon, and nitrogen controls the matrix Stacking Fault Energy (SFE) in the current heuristic model:
@@ -34,7 +34,7 @@ $$PREN = wt\%Cr + 3.3 \cdot wt\%Mo + 16 \cdot wt\%N$$
 
 ## 2. Active Engine Integration & Heuristic Calibration
 
-The computational screening engine and frontend sliders have been fully transitioned from Al-Co-Cr-Fe-Ni to the Fe-Mn-Cr-Ni-C-N system in Phase 2. The active parameters have been integrated and calibrated based on standard literature heuristics:
+The computational screening engine and frontend sliders have been fully transitioned from Al-Co-Cr-Fe-Ni to the Fe-Mn-Cr-Ni-C-N system in Phase 3 (Phase 3 runtime active, still heuristic/unvalidated). The active parameters have been integrated and calibrated based on standard literature heuristics:
 
 > [!NOTE]
 > **Active Implementation Status**
