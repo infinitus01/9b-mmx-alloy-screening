@@ -1,0 +1,244 @@
+{
+  "tool": "validation-watch-prototype",
+  "version": "0.1.0-prototype-only",
+  "generated_at": "2026-05-28T10:15:00Z",
+  "disclaimer": "================================================================================\nVALIDATION-WATCH-PROTOTYPE v0.1.0-prototype-only\nLiterature / Proxy Candidate Collection & Formatting Tool (PROTOTYPE ONLY)\n================================================================================\n\nPURPOSE\n  Collect and format publicly documented literature compositions and proxy\n  candidates into structured artifacts intended exclusively for offline\n  human review.\n\nMANDATORY STATUS ON ALL OUTPUTS\n  Every candidate record emitted by this tool carries:\n    \"review_state\": \"needs_review\"\n    \"active_in_penalty_model\": false\n\n  These two fields are non-negotiable. They signal that the record has\n  NOT been reviewed, has NOT been accepted, and is EXCLUDED from any\n  active penalty model or database.\n\nWHAT THIS TOOL DOES NOT DO (by design)\n  - Does NOT run any alloy screening, descriptor calculation, or triage.\n  - Does NOT modify logs/tainan_foundry_fail.json or any active failure DB.\n  - Does NOT modify agy.js, src/core/*, model thresholds, or penalty weights.\n  - Does NOT mark any candidate accepted, rejected, or validated.\n  - Does NOT auto-ingest anything into an active database.\n  - Does NOT claim material validation, performance prediction, or recommendation.\n  - Does NOT write to any location outside the designated inactive artifact dir.\n\nINTENDED WORKFLOW\n  1. Run this script to produce a timestamped review artifact (JSON + optional MD).\n  2. Human reviewer opens the artifact.\n  3. Reviewer manually inspects references, compositions, and context.\n  4. Only after explicit human approval may a subset be:\n       - added by hand to examples/search_seeds/validation/ (as seeds), or\n       - proposed (via future governed process) as literature_proxy entries.\n  5. Never treat output of this tool as an approved or active set.\n\nNO WARRANTY / NO ENGINEERING USE\n  This is a research prototype for evidence collection hygiene. All data\n  derived from public literature must be re-verified against original sources.\n  Outputs carry zero engineering or safety significance.\n\nSee docs/validation_watch_workflow.md for the full safe workflow.\n\nGenerated: 2026-05-28T10:15:00Z\n================================================================================\n",
+  "candidate_count": 5,
+  "candidates": [
+    {
+      "candidate_id": "LIT-WATCH-20260528-000",
+      "generated_by": "validation-watch-prototype",
+      "generated_at": "2026-05-28T10:15:00Z",
+      "source_ref": {
+        "type": "peer_reviewed_literature",
+        "citation": "Laplanche et al., Acta Materialia 128 (2017) 292–303",
+        "doi": "10.1016/j.actamat.2016.10.034",
+        "year": 2017,
+        "notes": "CrCoNi MEA equiatomic; experimental SFE reported via XRD/TEM."
+      },
+      "alloy_name": "Laplanche_CrCoNi_MEA",
+      "formula": "Cr33.3Co33.3Ni33.3",
+      "composition_at_pct": {
+        "Cr": 33.33,
+        "Co": 33.33,
+        "Ni": 33.34
+      },
+      "process": {
+        "cooling_rate_K_s": 10.0
+      },
+      "evidence_level": "literature_proxy",
+      "tags": [
+        "low_interstitial",
+        "mea",
+        "sfe_benchmark"
+      ],
+      "human_review_notes": "Classic low-SFE benchmark. Consider for validation seed set only after cross-check of exact at.% conversion and cooling assumption.",
+      "review_state": "needs_review",
+      "active_in_penalty_model": false,
+      "governance": {
+        "intended_use": "human_review_only",
+        "may_be_used_for": [
+          "validation_seed_formatting",
+          "future_proxy_proposal"
+        ],
+        "must_never": [
+          "auto_ingest",
+          "active_penalty_contribution",
+          "material_recommendation",
+          "validation_claim"
+        ],
+        "evidence_level_disclaimer": "literature_proxy entries require independent source verification. They carry lower weight than direct experimental failure records."
+      },
+      "prototype_note": "This record was produced by the validation-watch prototype. It is an inactive formatting artifact only."
+    },
+    {
+      "candidate_id": "LIT-WATCH-20260528-001",
+      "generated_by": "validation-watch-prototype",
+      "generated_at": "2026-05-28T10:15:00Z",
+      "source_ref": {
+        "type": "peer_reviewed_literature",
+        "citation": "Gutierrez-Urrutia and Raabe, Acta Materialia 59 (2011) 6449–6462; Ma et al. IJF 98 (2017)",
+        "doi": "10.1016/j.actamat.2011.07.009",
+        "year": 2011,
+        "notes": "Fe-22Mn-0.6C TWIP; high interstitial sensitivity documented."
+      },
+      "alloy_name": "DeCooman_TWIP_Steel_Proxy",
+      "formula": "Fe75.7Mn21.6C2.7",
+      "composition_at_pct": {
+        "Fe": 75.7,
+        "Mn": 21.6,
+        "C": 2.7
+      },
+      "process": {
+        "cooling_rate_K_s": 50.0
+      },
+      "evidence_level": "literature_proxy",
+      "tags": [
+        "high_carbon",
+        "twip",
+        "interstitial_risk"
+      ],
+      "human_review_notes": "High-C TWIP proxy. Useful for testing interstitial gate behavior under fast cool. Verify at.% vs wt.% conversion.",
+      "review_state": "needs_review",
+      "active_in_penalty_model": false,
+      "governance": {
+        "intended_use": "human_review_only",
+        "may_be_used_for": [
+          "validation_seed_formatting",
+          "future_proxy_proposal"
+        ],
+        "must_never": [
+          "auto_ingest",
+          "active_penalty_contribution",
+          "material_recommendation",
+          "validation_claim"
+        ],
+        "evidence_level_disclaimer": "literature_proxy entries require independent source verification. They carry lower weight than direct experimental failure records."
+      },
+      "prototype_note": "This record was produced by the validation-watch prototype. It is an inactive formatting artifact only."
+    },
+    {
+      "candidate_id": "LIT-WATCH-20260528-002",
+      "generated_by": "validation-watch-prototype",
+      "generated_at": "2026-05-28T10:15:00Z",
+      "source_ref": {
+        "type": "peer_reviewed_literature",
+        "citation": "Zaddach et al., JOM 65 (2013) 1780–1789",
+        "doi": "10.1007/s11837-013-0771-4",
+        "year": 2013,
+        "notes": "Cantor alloy (FeMnCrCoNi) equiatomic; annealing state hardness data."
+      },
+      "alloy_name": "Cantor_Alloy_HEA",
+      "formula": "Fe20Mn20Cr20Ni20Co20",
+      "composition_at_pct": {
+        "Fe": 20.0,
+        "Mn": 20.0,
+        "Cr": 20.0,
+        "Ni": 20.0,
+        "Co": 20.0
+      },
+      "process": {
+        "cooling_rate_K_s": 10.0
+      },
+      "evidence_level": "literature_proxy",
+      "tags": [
+        "hea",
+        "equiatomic",
+        "low_interstitial"
+      ],
+      "human_review_notes": "Widely studied HEA. Hardness data is for annealed condition; model hardness surrogate is known to over-estimate in this regime per existing validation.",
+      "review_state": "needs_review",
+      "active_in_penalty_model": false,
+      "governance": {
+        "intended_use": "human_review_only",
+        "may_be_used_for": [
+          "validation_seed_formatting",
+          "future_proxy_proposal"
+        ],
+        "must_never": [
+          "auto_ingest",
+          "active_penalty_contribution",
+          "material_recommendation",
+          "validation_claim"
+        ],
+        "evidence_level_disclaimer": "literature_proxy entries require independent source verification. They carry lower weight than direct experimental failure records."
+      },
+      "prototype_note": "This record was produced by the validation-watch prototype. It is an inactive formatting artifact only."
+    },
+    {
+      "candidate_id": "LIT-WATCH-20260528-003",
+      "generated_by": "validation-watch-prototype",
+      "generated_at": "2026-05-28T10:15:00Z",
+      "source_ref": {
+        "type": "peer_reviewed_literature",
+        "citation": "Bruemmer and Charlot, Scripta Metallurgica 20:3 (1986)",
+        "doi": "10.1016/0036-9748(86)90428-X",
+        "year": 1986,
+        "notes": "AISI 304 sensitization under slow cooling (0.1 K/s range)."
+      },
+      "alloy_name": "AISI_304_Sensitized_Proxy",
+      "formula": "Fe74Cr18Ni8",
+      "composition_at_pct": {
+        "Fe": 74.0,
+        "Cr": 18.0,
+        "Ni": 8.0
+      },
+      "process": {
+        "cooling_rate_K_s": 0.1
+      },
+      "evidence_level": "literature_proxy",
+      "tags": [
+        "low_carbon",
+        "sensitization",
+        "slow_cool",
+        "stainless"
+      ],
+      "human_review_notes": "Known blind-spot regime for current interstitial gate. Candidate for future low-C slow-cool extension work. Proxy omits trace C; treat as illustrative only.",
+      "review_state": "needs_review",
+      "active_in_penalty_model": false,
+      "governance": {
+        "intended_use": "human_review_only",
+        "may_be_used_for": [
+          "validation_seed_formatting",
+          "future_proxy_proposal"
+        ],
+        "must_never": [
+          "auto_ingest",
+          "active_penalty_contribution",
+          "material_recommendation",
+          "validation_claim"
+        ],
+        "evidence_level_disclaimer": "literature_proxy entries require independent source verification. They carry lower weight than direct experimental failure records."
+      },
+      "prototype_note": "This record was produced by the validation-watch prototype. It is an inactive formatting artifact only."
+    },
+    {
+      "candidate_id": "LIT-WATCH-20260528-004",
+      "generated_by": "validation-watch-prototype",
+      "generated_at": "2026-05-28T10:15:00Z",
+      "source_ref": {
+        "type": "public_literature_proxy",
+        "citation": "Hadfield steel literature archetype (Mn13-C1.2 typical, public domain references)",
+        "doi": "multiple (e.g. historical 1882+; modern reviews in Wear, Acta)",
+        "year": 1882,
+        "notes": "High-Mn austenitic work-hardening steel; classic casting-sensitive grade."
+      },
+      "alloy_name": "Hadfield_Steel_Archetype_Proxy",
+      "formula": "Fe82Mn13C5",
+      "composition_at_pct": {
+        "Fe": 82.0,
+        "Mn": 13.0,
+        "C": 5.0
+      },
+      "process": {
+        "cooling_rate_K_s": 5.0
+      },
+      "evidence_level": "literature_proxy",
+      "tags": [
+        "high_mn",
+        "hadfield",
+        "austenitic",
+        "work_hardening"
+      ],
+      "human_review_notes": "Archetypal high-Mn high-C grade. Extreme interstitial loading. Useful stress-test for gate logic. Exact historical compositions vary; use for directional review only.",
+      "review_state": "needs_review",
+      "active_in_penalty_model": false,
+      "governance": {
+        "intended_use": "human_review_only",
+        "may_be_used_for": [
+          "validation_seed_formatting",
+          "future_proxy_proposal"
+        ],
+        "must_never": [
+          "auto_ingest",
+          "active_penalty_contribution",
+          "material_recommendation",
+          "validation_claim"
+        ],
+        "evidence_level_disclaimer": "literature_proxy entries require independent source verification. They carry lower weight than direct experimental failure records."
+      },
+      "prototype_note": "This record was produced by the validation-watch prototype. It is an inactive formatting artifact only."
+    }
+  ],
+  "footer": "================================================================================\nEND OF ARTIFACT\nAll candidates above are in review_state=\"needs_review\" and\nactive_in_penalty_model=false. Prototype only. Human review required.\n================================================================================\n"
+}
