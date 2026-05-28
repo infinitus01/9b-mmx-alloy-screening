@@ -15,8 +15,8 @@
     "process_parameters": { "cooling_rate_K_s": 5.0 }
   },
   {
-    "name": "Tainan-CN-007",
-    "composition_at_pct": { "Fe": 46.0, "Mn": 24.0, "Cr": 18.0, "Ni": 10.0, "N": 2.0 },
-    "process_parameters": { "cooling_rate_K_s": 0.5 }
+    "name": "HNS_TWIP_Steel",
+    "composition_at_pct": { "Fe": 73.9, "Mn": 21.5, "C": 2.7, "N": 1.9 },
+    "process_parameters": { "cooling_rate_K_s": 50.0 }
   }
 ]
