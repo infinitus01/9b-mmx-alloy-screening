@@ -124,6 +124,7 @@ For exact equations and literature references, see [docs/methodology.md](docs/me
 ├── package.json               # Package setup & run scripts
 ├── README.md                  # Main repository homepage (this file)
 ├── src/
+│   ├── core/                  # Shared computation engine (descriptors, penalty, interstitial)
 │   └── quantum/
 │       ├── candidate_gen/     # Candidate generator isolated write zone
 │       └── physics_auditor/   # Physics consistency auditor isolated write zone
@@ -136,7 +137,7 @@ For exact equations and literature references, see [docs/methodology.md](docs/me
 │   ├── physics_audit_report.json# Executed JSON run report
 │   └── physics_audit_report.md  # Compiled Markdown screening report
 └── examples/
-    ├── hea_config_99.json     # Reference candidate alloy composition JSON
+    ├── hea_config_99.json     # Legacy demo reference composition JSON
     ├── sample_report.md       # Pre-run sample screening report copy
     └── search_seeds/          # Conceptual search seeds for Fe-Mn-Cr-Ni-C-N
         ├── seed_a_femncrni_baseline.json
