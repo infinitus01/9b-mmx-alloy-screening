@@ -117,10 +117,10 @@ with tab1:
 with tab2:
     st.header("Batch Triaging & Export")
     st.markdown("Run the 9B-MMX engine on a bulk collection of candidates.")
-    st.info("Evaluating the built-in validation seed set: `examples/search_seeds/validation/batch_val_seeds.json`")
+    st.info("Evaluating the built-in validation seed set: `examples/search_seeds/validation/lit_batch_seeds.json`")
     
     if st.button("⚙️ Execute Batch Triage", type="primary"):
-        input_path = "examples/search_seeds/validation/batch_val_seeds.json"
+        input_path = "examples/search_seeds/validation/lit_batch_seeds.json"
         output_path = "logs/dashboard_triage_out.json"
         
         with st.spinner("Processing thousands of heuristics in the background..."):
