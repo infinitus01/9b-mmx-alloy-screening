@@ -1,0 +1,98 @@
+{
+  "timestamp": "2026-05-28T01:18:39.690Z",
+  "total_evaluated": 3,
+  "triage_summary": {
+    "green_lower_risk": 0,
+    "yellow_moderate_risk": 1,
+    "red_high_risk": 2
+  },
+  "lower_risk_screening_rank": [],
+  "moderate_risk_candidates": [
+    {
+      "alloy_name": "Al-Perturbation Stress-Test Proxy",
+      "formula": "Fe₃₈Cr₁₉Ni₁₉Co₁₉Al₅",
+      "composition": {
+        "Al": 5,
+        "Co": 19,
+        "Cr": 19,
+        "Fe": 38,
+        "Ni": 19
+      },
+      "process": {
+        "cooling_rate_K_s": 10
+      },
+      "screening_results": {
+        "VEC": 7.9399999999999995,
+        "delta_percent": 3.130744006077315,
+        "dH_mix_kJ_mol": -5.517600000000001,
+        "omega": 4.000264177163838,
+        "estimated_SFE_heuristic_index": 31.831682962346562,
+        "PREN": 18.02926288052146,
+        "surrogate_hardness_HV": 279,
+        "interstitial_precipitation_risk_kJ_mol": 0,
+        "P_foundry": 2.7335722216458338e-21,
+        "experimental_sieverts_n_limit_at": 1.0940428592046625,
+        "triage_class": "Yellow (Moderate-Risk)",
+        "triage_reason": "PREN < 25"
+      }
+    }
+  ],
+  "triage_out_candidates": [
+    {
+      "alloy_name": "Fe-Mn-Cr-Ni Baseline Concept",
+      "formula": "Fe₄₈Mn₂₄Cr₁₈Ni₁₀",
+      "composition": {
+        "Fe": 48,
+        "Mn": 24,
+        "Cr": 18,
+        "Ni": 10,
+        "N": 0
+      },
+      "process": {
+        "cooling_rate_K_s": 0.5
+      },
+      "screening_results": {
+        "VEC": 7.6,
+        "delta_percent": 0.8666496163056472,
+        "dH_mix_kJ_mol": -1.6560000000000001,
+        "omega": 11.143266522417523,
+        "estimated_SFE_heuristic_index": 29.313448117256335,
+        "PREN": 16.949582236258344,
+        "surrogate_hardness_HV": 255.2,
+        "interstitial_precipitation_risk_kJ_mol": 0,
+        "P_foundry": 1.8819849478066002,
+        "experimental_sieverts_n_limit_at": 4.200476364286757,
+        "triage_class": "Red (High-Risk/Triage-Out)",
+        "triage_reason": "High failure proximity score (P_foundry = 1.8820)."
+      }
+    },
+    {
+      "alloy_name": "Nitrogen-Doped Stress-Test Proxy",
+      "formula": "Fe₄₆Mn₂₄Cr₁₈Ni₁₀N₂",
+      "composition": {
+        "Fe": 46,
+        "Mn": 24,
+        "Cr": 18,
+        "Ni": 10,
+        "N": 2
+      },
+      "process": {
+        "cooling_rate_K_s": 0.6
+      },
+      "screening_results": {
+        "VEC": 7.591836734693877,
+        "delta_percent": 0.8741999593594358,
+        "dH_mix_kJ_mol": -1.6926280716368183,
+        "omega": 10.988771014065895,
+        "estimated_SFE_heuristic_index": 21.64092575635552,
+        "PREN": 25.45370298864777,
+        "surrogate_hardness_HV": 425.2,
+        "interstitial_precipitation_risk_kJ_mol": 11.0144,
+        "P_foundry": 1.9687323543162059,
+        "experimental_sieverts_n_limit_at": 4.404295470367308,
+        "triage_class": "Red (High-Risk/Triage-Out)",
+        "triage_reason": "High failure proximity score (P_foundry = 1.9687)."
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "name": "Fe-Mn-Cr-Ni Baseline Concept",
+    "composition_at_pct": {
+      "Fe": 48.0,
+      "Mn": 24.0,
+      "Cr": 18.0,
+      "Ni": 10.0,
+      "N": 0.0
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 0.5
+    }
+  },
+  {
+    "name": "Al-Perturbation Stress-Test Proxy",
+    "composition_at_pct": {
+      "Al": 5.0,
+      "Co": 19.0,
+      "Cr": 19.0,
+      "Fe": 38.0,
+      "Ni": 19.0
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 10.0
+    }
+  },
+  {
+    "name": "Nitrogen-Doped Stress-Test Proxy",
+    "composition_at_pct": {
+      "Fe": 46.0,
+      "Mn": 24.0,
+      "Cr": 18.0,
+      "Ni": 10.0,
+      "N": 2.0
+    },
+    "process_parameters": {
+      "cooling_rate_K_s": 0.6
+    }
+  }
+]

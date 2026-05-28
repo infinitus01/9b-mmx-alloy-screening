@@ -32,14 +32,18 @@ As detailed in [docs/search_direction.md](docs/search_direction.md), the primary
 
 ## 3. Capabilities & Scope
 
-### What this tool DOES (Phase 2 Integrated):
+### What this tool DOES (Phase 3 Integrated):
+* **Shared Core Architecture**: Decouples calculations into reusable modules under `src/core/` (`descriptors.js`, `interstitial.js`, `penalty.js`) wrapped in UMD wrappers for seamless Node.js and browser classic script reuse.
+* **High-Throughput Batch Screening CLI**: Runs fast multi-candidate triaging using `node agy.js /batch-screen --input=<path_to_json> --output=<path_to_json>`, formatting output reports into a highly organized **Candidate Triage Table**.
+* **Process-Aware Failure Penalty**: Connects dynamic cooling rates ($CR$) to exclusion zones. Slow-cooling rates ($\le 1.0\text{ K/s}$) amplify failure penalty weights by $1.5\times$ for tagged precipitation-sensitive steel records, while fast cooling ($\ge 100\text{ K/s}$) scales penalties down to $0.2\times$, modeling suppression kinetics.
+* **Experimental Sieverts' Law solubility**: Incorporates liquid-iron interaction coefficients ($e_{\text{N}}^{\text{Cr}} = -0.06$, $e_{\text{N}}^{\text{Mn}} = -0.02$, $e_{\text{N}}^{\text{Ni}} = +0.01$) under $1600^\circ\text{C}$ and $1\text{ atm}$ to calculate an optional experimental solubility descriptor.
 * **Thermodynamic Descriptor Estimation**: Calculates empirical values for Valence Electron Concentration (VEC), atomic size differences ($\delta$), mixing enthalpy ($\Delta H_{\text{mix}}$), and entropy parameters ($\Omega$) as **substitutional-only descriptors** (normalized within the substitutional subsystem).
 * **Solute Stacking Fault Energy ($SFE$) Indexing**: Estimates a weight percent (wt.%) based empirical SFE heuristic index to evaluate TRIP/TWIP deformation mechanism boundaries.
 * **Pitting Corrosion Resistance (PREN)**: Computes the Pitting Resistance Equivalent Number ($PREN = \text{Cr} + 16\text{N}$) in wt.% via `atPctToWtPct()` conversions.
 * **Interstitial Solubility & Precipitation Risk**: Enforces interstitial solubility limit gates for N, C, and total interstitials, and calculates the interstitial precipitation risk index from pairing enthalpies.
 * **Rule-Based Phase-Risk Flagging**: Identifies risks of brittle $\sigma$-phase, TCP Laves-phase, as well as interstitial grain-boundary $\text{Cr}_2\text{N}$ nitrides and $\text{M}_{23}\text{C}_6$ carbides using standard literature heuristics.
 * **Failure-Distance Penalty Modeling**: Employs a non-parametric Gaussian kernel to calculate multi-dimensional Euclidean composition and cooling rate distances against known casting failures in the expanded failure database.
-* **Surrogate Hardness Indexing**: Computes quick linear approximations of Vickers Hardness based on solute strengthening equations (including C and N interstitial strengthening).
+* **Surrogate Hardness Indexing**: Computes quick solid-solution Vickers Hardness predictions.
 
 ### What this tool DOES NOT do:
 * **No CALPHAD / DFT Solvers**: It does not run thermodynamic equilibrium phase diagrams (e.g. Thermo-Calc) or first-principles density functional theory calculations.
@@ -53,7 +57,7 @@ As detailed in [docs/search_direction.md](docs/search_direction.md), the primary
 ### Prerequisites
 * [Node.js](https://nodejs.org/) (Version 16 or higher recommended)
 
-### Run Computational Audit
+### Run Single Candidate Audit
 Clone this repository, navigate to the folder, and run:
 
 ```bash
@@ -61,7 +65,16 @@ npm install
 npm run audit
 ```
 
-This will run the computational screening engine on the built-in candidate alloy `Fe46-Mn24-Cr18-Ni10-N2`. The screening engine is fully integrated with the Fe-Mn-Cr-Ni-C-N system and automatically evaluates substitutionals-only descriptors, empirical SFE heuristic indexing, PREN, and interstitial solubility gates.
+This will run the computational screening engine on the default candidate alloy `Fe46-Mn24-Cr18-Ni10-N2`.
+
+### Run High-Throughput Batch Screening
+To evaluate a batch of candidates, run:
+
+```bash
+node agy.js /batch-screen --input=examples/search_seeds/batch_seeds_example.json --output=logs/triage_report.json
+```
+
+This triages candidates into the triage report, classifying compositions into lower-risk ranks or triaged-out records.
 
 ---
 

@@ -99,7 +99,17 @@ To handle carbon and nitrogen interstitial co-doping, the tool segregates inters
    * Nitrogen: $c_{\text{N}} \le 1.5 + 0.04 c_{\text{Cr}}$
    * Carbon: $c_{\text{C}} \le 1.2$
    * Total Interstitial: $c_{\text{C}} + c_{\text{N}} \le 3.0$
-2. **Interstitial Precipitation Risk ($\Delta H_{\text{int-sub}}$)**:
+2. **Experimental Sieverts' Law solubility (Optional Indicator)**:
+   * Estimates a maximum thermodynamics-based nitrogen solubility at $1600^\circ\text{C}$ and $1.0\text{ atm}$ $N_2$ gas based on element first-order interaction coefficients:
+     $$\log(f_{\text{N}}) = \sum_i e_{\text{N}}^i \cdot w_i$$
+     $$c_{\text{N}}^{\text{max}} = c_{\text{N}}^{\text{base}} \cdot 10^{-\log(f_{\text{N}})}$$
+     Where $w_i$ is the weight percentage of element $i$, $c_{\text{N}}^{\text{base}} = 0.045\text{ wt.\%}$ is the base solubility in liquid iron, and interaction parameters are:
+     * $e_{\text{N}}^{\text{Cr}} = -0.06$ (increases solubility)
+     * $e_{\text{N}}^{\text{Mn}} = -0.02$ (increases solubility)
+     * $e_{\text{N}}^{\text{Ni}} = +0.01$ (decreases solubility)
+     * $e_{\text{N}}^{\text{Co}} = +0.01$ (decreases solubility)
+     * $e_{\text{N}}^{\text{Al}} = -0.05$ (increases solubility)
+3. **Interstitial Precipitation Risk ($\Delta H_{\text{int-sub}}$)**:
    * Captures the strong pairing enthalpies between substitutional elements ($s$) and interstitials ($in$):
      $$\Delta H_{\text{int-sub}} = \sum_{s} \sum_{in} 4 |\Delta H_{s-in}^{\text{mix}}| x_s x_{in}$$
    * Highly negative enthalpies indicate a significant thermodynamic driving force for grain-boundary nitride/carbide formation (e.g. $Cr_2N$, $M_{23}C_6$), triggering sensitization and intergranular embrittlement.
@@ -119,16 +129,23 @@ Rather than physical XRD/SEM crystal structure measurements, the tool applies bi
 
 To prevent repeating historically failed experiments, a non-parametric distance-weighted penalty index is calculated against the local failure database:
 
-$$P_{\text{foundry}} = \sum_{k=1}^{M} w_k \exp \left( -\frac{\sum_{e} (c_e - c_{e,k})^2}{2\sigma_k^2} \right) \cdot g(p, p_k)$$
+$$P_{\text{foundry}} = \sum_{k=1}^{M} w_{k,\text{active}} \exp \left( -\frac{\sum_{e} (c_e - c_{e,k})^2}{2\sigma_k^2} \right) \cdot g(p, p_k)$$
 
 Where:
 * $c_e$ and $c_{e,k}$ represent the atomic percentages of element $e$ in the candidate and failure sample $k$.
-* $w_k$ is the severity weight of failure sample $k$ (scale $0 \sim 1.0$).
 * $\sigma_k$ is the kernel bandwidth parameter (smoothing radius) of sample $k$.
-* $g(p, p_k) = \exp \left( -\frac{(CR - CR_k)^2}{2} \right)$ scales process correlation, where $CR$ and $CR_k$ represent the cooling rates.
+* $g(p, p_k) = \exp \left( -\frac{(CR - CR_k)^2}{2} \right)$ calculates **process proximity** (Gaussian difference in process space).
+
+### Preventing Double Counting via Dual-Layer Cooling Modeling
+To avoid mathematical double counting with the continuous $g(p, p_k)$ proximity term, a discrete **process-aware severity scaling factor** ($\Psi$) is introduced. It scales the absolute severity weight $w_k$ dynamically **only** for records tagged with `"process_sensitivity": "precipitation_slow_cooling"` (e.g. sensitized slow-cooling crack failure proxies):
+
+$$w_{k,\text{active}} = w_k \cdot \Psi(CR)$$
+* **Slow cooling** ($CR \le 1.0\text{ K/s}$): $\Psi = 1.5$. Models the strong thermodynamic driving force for grain boundary carbide/nitride sensitization and intergranular cracking under low cooling rates.
+* **Fast cooling** ($CR \ge 100\text{ K/s}$): $\Psi = 0.2$. Models the metallurgical suppression of precipitation kinetics under rapid solidification.
+* Non-tagged records maintain $\Psi = 1.0$, preventing double counting.
 
 ### The $0.25$ Risk Threshold
-The threshold value of $P_{\text{foundry}} \ge 0.25$ is a **heuristic safeguard**:
+The threshold value of $P_{\text{foundry}} \ge 0.25$ is a **減壓安全門檻 (heuristic safeguard)**:
 * It acts as a safety margin ensuring that any candidate alloy composition falling within a narrow atomic cluster of a previous major solidification failure (e.g. macrosegregation or solidification cracking) is flagged and computation rejected.
 
 ---

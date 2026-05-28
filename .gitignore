@@ -24,3 +24,7 @@ Thumbs.db
 *.njsproj
 *.sln
 *.swp
+
+# Local runtime scratch and logs
+scratch/
+logs/candidate_triage_table.json
