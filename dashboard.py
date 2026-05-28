@@ -6,13 +6,14 @@ import subprocess
 import json
 import os
 import io
+import ml_optimizer
 
 st.set_page_config(page_title="9B-MMX Dashboard", page_icon="⚛️", layout="wide")
 
 st.title("9B-MMX: Computational Alloy Screening Dashboard")
 st.markdown("A high-throughput, heuristic-based pre-screening engine designed to instantly flag casting risks and filter metastable structural alloys before committing to expensive physical melts or heavy CALPHAD simulations.")
 
-tab1, tab2 = st.tabs(["🎛️ Single Alloy Audit (Demo)", "📊 High-Throughput Batch Triage"])
+tab1, tab2, tab3 = st.tabs(["🎛️ Single Alloy Audit (Demo)", "📊 High-Throughput Batch Triage", "🧠 ML Optimization & Pareto Discovery"])
 
 with tab1:
     st.header("Interactive Parameter Adjustment")
@@ -99,7 +100,6 @@ with tab1:
                         m3.metric("Est. SFE (mJ/m²)", round(res_dict.get("estimated_SFE_heuristic_index", 0), 1))
                         m4.metric("Foundry Penalty", round(res_dict.get("P_foundry", 0), 4))
 
-                        # Radar chart
                         categories = ['PREN', 'SFE Index', 'Hardness (HV/10)', 'Interstitial Risk']
                         hv = res_dict.get("surrogate_hardness_HV", 0) / 10.0 if res_dict.get("surrogate_hardness_HV") else 0
                         int_risk = res_dict.get("interstitial_precipitation_risk_kJ_mol", 0)
@@ -113,15 +113,11 @@ with tab1:
                         ))
                         fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 100])), showlegend=False, margin=dict(t=20, b=20))
                         st.plotly_chart(fig, use_container_width=True)
-                        
-                        with st.expander("View Raw JSON Output"):
-                            st.json(res_dict)
 
 with tab2:
     st.header("Batch Triaging & Export")
-    st.markdown("Run the 9B-MMX engine on a bulk collection of candidates. Generate visual risk heatmaps and export the full triage report to Excel.")
-    
-    st.info("Currently evaluating the built-in validation seed set: `examples/search_seeds/validation/batch_val_seeds.json`")
+    st.markdown("Run the 9B-MMX engine on a bulk collection of candidates.")
+    st.info("Evaluating the built-in validation seed set: `examples/search_seeds/validation/batch_val_seeds.json`")
     
     if st.button("⚙️ Execute Batch Triage", type="primary"):
         input_path = "examples/search_seeds/validation/batch_val_seeds.json"
@@ -134,26 +130,17 @@ with tab2:
             with open(output_path, "r", encoding="utf-8") as f:
                 triage_data = json.load(f)
                 
-            summ = triage_data.get("triage_summary", {})
-            st.subheader("Global Triage Summary")
-            c1, c2, c3 = st.columns(3)
-            c1.metric("🟢 Green (Pass)", summ.get("green_lower_risk", 0))
-            c2.metric("🟡 Yellow (Moderate)", summ.get("yellow_moderate_risk", 0))
-            c3.metric("🔴 Red (Fail)", summ.get("red_high_risk", 0))
-            
             # Build DataFrame
             all_records = []
             for group, gname in [("lower_risk_screening_rank", "Green"), ("moderate_risk_candidates", "Yellow"), ("triage_out_candidates", "Red")]:
                 for item in triage_data.get(group, []):
                     flat = {"Alloy_ID": item["alloy_name"], "Triage_Rank": gname, "Cooling_Rate": item["process"]["cooling_rate_K_s"]}
                     flat.update(item["composition"])
-                    # Filter nested dict to primitive types for excel
                     flat.update({k: v for k, v in item["screening_results"].items() if type(v) in [int, float, str, bool]})
                     all_records.append(flat)
                     
             if all_records:
                 df = pd.DataFrame(all_records)
-                st.subheader("Candidate Triage Data Table")
                 st.dataframe(df, use_container_width=True)
                 
                 # Excel Export
@@ -161,30 +148,58 @@ with tab2:
                 with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
                     df.to_excel(writer, index=False, sheet_name='Triage_Report')
                 
-                st.download_button(
-                    label="📥 Download Full Triage Report (.xlsx)",
-                    data=buffer.getvalue(),
-                    file_name="9B_MMX_Triage_Report.xlsx",
-                    mime="application/vnd.ms-excel",
-                    type="primary"
-                )
-                
-                st.subheader("Visual Risk Mapping")
-                col_chart1, col_chart2 = st.columns(2)
-                
-                with col_chart1:
-                    fig1 = px.scatter(df, x="VEC", y="estimated_SFE_heuristic_index", color="Triage_Rank", 
-                                      hover_data=["Alloy_ID", "PREN"],
-                                      color_discrete_map={"Green":"#28a745", "Yellow":"#ffc107", "Red":"#dc3545"},
-                                      title="Phase Space: VEC vs. SFE")
-                    st.plotly_chart(fig1, use_container_width=True)
+                st.download_button("📥 Download Full Triage Report (.xlsx)", data=buffer.getvalue(), file_name="9B_MMX_Triage_Report.xlsx", mime="application/vnd.ms-excel", type="primary")
+
+with tab3:
+    st.header("Gaussian Process Surrogate & Pareto Front")
+    st.markdown("This module uses the Node.js heuristic engine to generate synthetic training data, trains a **Gaussian Process Regressor (GPR)** to create a fast surrogate model, and performs random sampling to find the **Pareto Front** between maximizing Hardness and minimizing Precipitation Risk. The GPR also provides **Uncertainty Quantification (UQ)**.")
+    
+    if 'opt' not in st.session_state:
+        st.session_state.opt = ml_optimizer.SurrogateOptimizer()
+        
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("1. Generate Data & Train ML Surrogate", type="primary"):
+            with st.spinner("Generating 500 records via Node.js and Training Gaussian Process..."):
+                df_train = ml_optimizer.generate_synthetic_data(500)
+                if not df_train.empty:
+                    success = st.session_state.opt.train(df_train)
+                    if success:
+                        st.success("Gaussian Process Surrogate Model trained successfully!")
+                        st.session_state.df_train = df_train
+                    else:
+                        st.error("Training failed.")
+                else:
+                    st.error("Failed to generate data from Node.js engine.")
                     
-                with col_chart2:
-                    if "interstitial_precipitation_risk_kJ_mol" in df.columns:
-                        fig2 = px.bar(df, x="Alloy_ID", y="interstitial_precipitation_risk_kJ_mol", color="Triage_Rank",
-                                      color_discrete_map={"Green":"#28a745", "Yellow":"#ffc107", "Red":"#dc3545"},
-                                      title="Precipitation Risk (Foundry Heatmap Proxy)")
-                        st.plotly_chart(fig2, use_container_width=True)
-        else:
-            st.error("Batch processing failed. Node.js engine error.")
-            st.text(res.stderr)
+    with c2:
+        if st.button("2. Perform Pareto Optimization Search", type="primary"):
+            if not st.session_state.opt.is_trained:
+                st.warning("Please train the model first.")
+            else:
+                with st.spinner("Random sampling 2000 points and predicting with UQ..."):
+                    df_pareto = st.session_state.opt.find_pareto_front(2000)
+                    st.session_state.df_pareto = df_pareto
+                    
+    if 'df_pareto' in st.session_state:
+        df_p = st.session_state.df_pareto
+        
+        st.subheader("Pareto Front: Hardness vs. Precipitation Risk")
+        st.markdown("Trade-off between increasing material strength (Hardness) and avoiding critical cracking hazards (Risk). The size of the points represents the Uncertainty (Standard Deviation) from the ML model.")
+        
+        # Plotly plot with Error bars or just scatter colored by Pareto
+        fig = px.scatter(
+            df_p, 
+            x="Risk_Mean", y="Hardness_Mean", 
+            color="Is_Pareto",
+            error_x="Risk_Std", error_y="Hardness_Std",
+            hover_data=["Fe", "Mn", "Cr", "Ni", "Co", "C", "N"],
+            color_discrete_map={True: "red", False: "blue"},
+            labels={"Risk_Mean": "Precipitation Risk (kJ/mol)", "Hardness_Mean": "Est. Hardness (HV)"},
+            title="Surrogate Predictions with UQ Error Bars"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        
+        st.subheader("Top 5 Non-Dominated (Pareto) Candidates")
+        pareto_only = df_p[df_p["Is_Pareto"] == True].sort_values("Hardness_Mean", ascending=False).head(5)
+        st.dataframe(pareto_only)
