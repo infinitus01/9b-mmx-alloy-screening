@@ -1,0 +1,6 @@
+{
+  "elements": {
+    "Fe": 46.0, "Mn": 24.0, "Cr": 18.0, "Ni": 10.0, "N": 2.0
+  },
+  "process": { "cooling_rate_K_s": 0.5 }
+}

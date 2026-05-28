@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Cantor_Alloy",
+    "composition_at_pct": { "Fe": 20, "Mn": 20, "Cr": 20, "Ni": 20, "Co": 20 },
+    "process_parameters": { "cooling_rate_K_s": 10.0 }
+  },
+  {
+    "name": "Hadfield_Steel",
+    "composition_at_pct": { "Fe": 83.0, "Mn": 11.7, "C": 5.3 },
+    "process_parameters": { "cooling_rate_K_s": 50.0 }
+  },
+  {
+    "name": "AISI_304",
+    "composition_at_pct": { "Fe": 74.0, "Cr": 18.0, "Ni": 8.0 },
+    "process_parameters": { "cooling_rate_K_s": 5.0 }
+  },
+  {
+    "name": "Tainan-CN-007",
+    "composition_at_pct": { "Fe": 46.0, "Mn": 24.0, "Cr": 18.0, "Ni": 10.0, "N": 2.0 },
+    "process_parameters": { "cooling_rate_K_s": 0.5 }
+  }
+]

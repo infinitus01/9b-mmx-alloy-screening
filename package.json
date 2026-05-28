@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "node server.js",
-    "audit": "node agy.js /goal \"對 Fe46-Mn24-Cr18-Ni10-N2 進行非同步物理一致性審核，載入 @logs/tainan_foundry_fail.json 作為失敗/代理排斥場核心\" --config=AGENTS.md"
+    "audit": "node agy.js /goal \"對 Fe46-Mn24-Cr18-Ni10-N2 進行非同步物理一致性審核，載入 @logs/tainan_foundry_fail.json 作為失敗/代理排斥場核心\" --config=AGENTS.md",
+    "dashboard": "streamlit run dashboard.py"
   },
   "keywords": [
     "metallurgy",
