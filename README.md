@@ -4,122 +4,134 @@
 ![Node.js](https://img.shields.io/badge/Node.js-16%2B-green.svg)
 ![Status](https://img.shields.io/badge/Status-Active_Development-orange.svg)
 
-**9B-MMX** is a high-throughput, rule-based computational pre-screening engine designed to instantly flag casting risks and triage metastable structural alloys *before* committing to expensive physical melts or heavy CALPHAD simulations.
+**9B-MMX** 是一個高通量、製程感知的合金鑄造風險快篩原型，面向 **Fe-Mn-Cr-Ni-C-N** 等探索性結構合金搜尋空間。它會在毫秒級時間內，根據物理描述符與歷史/代理失敗資料，快速標記需要優先排除或進一步審查的配方，協助研究者把實驗與 CALPHAD 資源集中到較值得後續驗證的候選區域。
 
-> **Important Disclaimer**: This tool is a pre-screening computational filter. It is **not** a substitute for physical melting, microscopy, phase identification, or mechanical testing. All predictions and cost values are heuristic estimates for risk-alerting, not guaranteed material specifications.
-
----
-
-## 1. 痛點與解決方案 (The Problem We Solve)
-
-### 🚨 為什麼我們需要這個工具？
-傳統的合金開發面臨著嚴重的「死亡之谷 (Valley of Death)」。當我們透過機器學習或直覺設計出全新的多主元合金 (MPEAs) 或高錳鋼配方時，通常會面臨兩個極端的瓶頸：
-1. **實體試錯成本過高 (Physical Casting is Expensive)**：直接把幾百種理論配方送進熔爐，會耗費數十萬的資金與幾個月的時間，最後卻發現大部分的合金在冷卻過程中就因為脆性相 (如 $\sigma$ 相) 或碳氮化物析出而直接開裂。
-2. **熱力學模擬太慢 (CALPHAD is Slow)**：Thermo-Calc 等軟體雖然精準，但在面對包含 Fe-Mn-Cr-Ni-C-N 等 6 元以上系統時，計算龐大搜尋空間的相圖需要極長的運算時間，無法應付「高通量海選 (High-Throughput Screening)」。
-
-### 💡 9B-MMX 的價值：終極的「Fail-Fast」過濾器
-9B-MMX 的定位不是取代精密模擬，而是作為**「第一道快篩防線」**。它透過預先建立的物理經驗法則 (如 SFE、VEC、Sieverts' Law) 與實體失敗記憶庫，能在 **1 秒內篩選數千種配方**，瞬間將 95% 註定會因為物理限制而失敗的配方剔除。
-
-**這能為您省下巨大的時間與金錢：讓您的 CALPHAD 算力與昂貴的實體熔爐，只專注在過關的那 5% 最有潛力的「低風險名單 (Lower-Risk Candidates)」上。**
+> **重要聲明**：這是一個**啟發式預篩工具**，不是材料性能預測器。所有輸出均為風險警示與相對排序用途，不得替代物理熔煉、顯微組織分析或機械測試。
 
 ---
 
-## 2. 核心使用情境 (Core Use Cases)
+## 📊 Literature Benchmark：文獻基準比對
 
-9B-MMX 特別適合材料科學家、冶金工程師以及從事合金設計的 AI 研究人員。
+這是目前 9B-MMX 最重要的文獻基準資料。
 
-### ❄️ 情境一：低溫高錳鋼 (Cryogenic High-Mn Steel) 開發
-當您試圖在 Fe-Mn-Cr-Ni 基礎上加入大量碳 (C) 與氮 (N) 來追求極致低溫韌性時，9B-MMX 能瞬間幫您評估該成分在特定的**冷卻速率 (Cooling Rate)** 下，是否會因為過飽和而產生致命的晶界析出，確保設計出的合金在實際鑄造時不會直接報廢。
+我們選取 4 種在同行評審文獻中具有高品質實驗數據的經典合金（CrCoNi MEA、Fe-22Mn-0.6C TWIP 鋼、Cantor Alloy、AISI 304 慢冷敏化），進行盲測基準比對，並與文獻值進行量化誤差分析。
 
-### 🚀 情境二：高通量海選 (High-Throughput Candidate Triaging)
-如果您有一個 AI 模型生成了 10,000 種潛在的合金配方，您可以直接將 JSON 餵給 9B-MMX 的 Batch CLI。系統會根據已知的「鑄造失敗資料庫」計算懲罰距離，自動為您產出一份 **Triage Report (分流報告)**，直接將高風險與低風險配方分門別類。
+**完整報告請見**：[docs/validation_report.md](docs/validation_report.md)
 
-### 💰 情境三：成本受限的性能探索 (Cost-Constrained Alloy Discovery)
-透過整合簡易的原料成本估算與層錯能 (SFE) 指標，您可以在 9B-MMX 的 Dashboard 上即時拖曳滑桿，尋找能在維持 TWIP/TRIP 變形機制的同時，最大幅度降低昂貴元素 (如 Ni, Co) 佔比的經濟型替代方案。
+### 驗證總結（Quantitative Highlights）
 
----
+| 合金 | SFE 相對誤差 | Hardness 相對誤差 | 析出風險攔截 | Triage 決策 | 評價 |
+|------|--------------|-------------------|--------------|-------------|------|
+| CrCoNi MEA | **-30.8%** | — | 正確（低風險） | ✅ Green | 低風險判斷一致 |
+| Fe-22Mn-0.6C TWIP | **+18% ~ +107%** | — | ✅ 正確觸發 Red | ✅ Red | 良好（風險攔截準確） |
+| Cantor Alloy | **-30.4%** | **+67%** (vs 退火態) | 正確 | ⚠️ Yellow | 硬度明顯高估 |
+| AISI 304 (0.1 K/s) | — | — | ❌ 未攔截 | ⚠️ Yellow | **明顯盲區** |
 
-## 3. 運作原理：管線與流程圖 (The Screening Pipeline)
+**關鍵結論**：
+- 在**物理風險機制層級**，4 個案例的決策正確率約 **75%**。
+- 對中高碳合金的間隙析出風險攔截能力強（這正是 9B-MMX 最有價值的應用場景）。
+- Hardness surrogate 在無間隙元素的高熵合金系統存在系統性高估（+67%）。
+- 對極低碳 + 極慢冷（不鏽鋼敏化）情境，目前模型仍有明顯盲區。
 
-9B-MMX 採用輕量化的 Node.js 核心，將驗證流程分為三個防護網：
-
-```mermaid
-graph TD
-    A[輸入: 合金成分 + 冷卻速率] --> B(9B-MMX 核心計算引擎)
-    B --> C{第一關: 物理守恆與相穩定性}
-    C -->|VEC 落在脆性區 / 溶解度超標| D[Reject: 標記為高風險]
-    C -->|Pass| E(第二關: 製程感知懲罰核)
-    E -->|比對 tainan_foundry_fail.json| F{計算高維歐幾里得距離}
-    F -->|距離失敗樣本太近| D
-    F -->|距離安全| G[Output: 產出低風險分流報告與雷達圖]
-    
-    classDef input fill:#f1f8ff,stroke:#0366d6,stroke-width:2px;
-    classDef reject fill:#f9d0c4,stroke:#e06c75,stroke-width:2px;
-    classDef pass fill:#d4edda,stroke:#28a745,stroke-width:2px;
-    class A input;
-    class D reject;
-    class G pass;
-```
-
-1. **基本物理量計算**：計算價電子濃度 (VEC)、原子尺寸差 ($\delta$)、混合焓 ($\Delta H_{\text{mix}}$)、層錯能 (SFE) 與 PREN。
-2. **熱力學邊界判定**：阻擋落入已知脆性相 (如 $\sigma$-phase, $6.8 \le VEC \le 7.6$) 與 TCP Laves-phase 的成分，並透過 Sieverts' Law 攔截間隙原子 (C/N) 超標的成分。
-3. **歷史失敗懲罰核 (Failure Kernel)**：將成分與冷卻速率映射到高維空間，計算與已知失敗樣本 (如實驗室曾鑄造裂開的廢料) 的高斯距離。若過於相近，則直接判定為高風險。
+**這份驗證報告明確界定了 9B-MMX 的真實能力邊界**，也讓後續任何模型改進都有了客觀的 baseline。
 
 ---
 
-## 4. 我們的優勢與極限 (Achievements vs. Limitations)
+## 為什麼需要 9B-MMX？
 
-### ✅ 優勢 (Why it works)
-* **極致高速**：無需解熱力學微分方程，每筆配方審核不到 1 毫秒，完美支援批次處理。
-* **製程感知 (Process-Awareness)**：不僅看成分，還會根據輸入的**冷卻速率 (Cooling Rate)** 動態調整析出懲罰權重。冷卻越慢，間隙原子析出懲罰越重。
-* **視覺化 Dashboard**：內建 Python Streamlit 介面，讓非工程背景的學者也能輕鬆拉動滑桿，即時觀看合金物理足跡 (Radar Chart)。
+傳統合金開發存在嚴重的「死亡之谷」：
 
-### ⚠️ 限制 (Known Limitations)
-* **非絕對精準 (Heuristic Engine)**：9B-MMX 依賴經驗法則，**絕對無法取代 Thermo-Calc 或 DFT**。它的目的是「粗篩剔除壞蘋果」，而非「精確描繪好蘋果的細節」。
-* **極度依賴外部失敗數據**：預設的失敗資料庫 `tainan_foundry_fail.json` 僅有少數示範紀錄，使用者必須自行匯入自己實驗室的真實失敗數據，模型的攔截能力才會隨著資料庫變大而越發精準。
+- **實體試錯成本極高**：數百種理論配方送進熔爐，動輒數十萬與數月，最後大多數在冷卻階段就因碳氮化物析出或脆性相而報廢。
+- **CALPHAD 太慢**：Thermo-Calc 等工具在 6 元以上系統（Fe-Mn-Cr-Ni-C-N）計算成本極高，無法支撐高通量探索。
+
+**9B-MMX 的定位**：作為高通量候選配方的快速分流工具，能在毫秒級時間內根據物理規則與歷史失敗數據，對大量成分進行初步風險篩選，讓後續昂貴的實驗與 CALPHAD 資源更集中在有潛力的少數候選上。
 
 ---
 
-## 5. 快速上手 (Quick Start)
+## 核心能力
 
-### 啟動視覺化 Dashboard (強烈推薦)
-最快體驗 9B-MMX 威力的方式是啟動展示面板：
+- **製程感知**：同時考慮成分 + 冷卻速率（Cooling Rate），動態調整間隙析出懲罰。
+- **多層防護**：物理守恆（VEC、δ、ΔH_mix、Ω）→ 間隙溶解度閘門 → 歷史失敗距離懲罰核。
+- **極速批次處理**：支援 JSON 輸入，輕鬆處理數千甚至上萬種候選配方。
+- **視覺化探索**：內建 Streamlit Dashboard，可即時調整成分並觀看雷達圖與風險評估。
+
+---
+
+## 典型使用情境
+
+### 1. 高碳/中碳亞穩結構合金開發（最推薦）
+在設計高錳 TWIP/TRIP 鋼或含 C/N 的 Fe-Mn-Cr-Ni 系統時，快速排除在常規鑄造條件下會產生嚴重晶界析出的配方。這是目前驗證表現最好的應用場景。
+
+### 2. AI 生成配方的下游過濾
+當機器學習模型產生 10,000 種候選成分時，先用 9B-MMX 進行粗篩，再把通過的少數配方送進 CALPHAD 或實驗。
+
+### 3. 製程視窗探索
+研究同一成分在不同冷卻速率下的風險變化，找出安全的鑄造參數窗口。
+
+---
+
+## 快速上手
+
+### 啟動 Dashboard（最推薦）
 ```bash
-# 確保已安裝 Python 環境與套件
 pip install -r requirements.txt
 npm install
 npm run dashboard
 ```
-這將開啟一個 Streamlit 網頁，您可以在其中調整元素滑桿，並立即看到合金的雷達圖與風險評估。
 
-### 使用命令列進行批次海選 (Batch Screening CLI)
-針對大量資料，我們提供高效能 CLI 工具：
+### 命令列批次篩選
 ```bash
-node agy.js /batch-screen --input=examples/search_seeds/validation/batch_val_seeds.json --output=logs/triage_report.json
+node agy.js /batch-screen \
+  --input=examples/search_seeds/validation/lit_batch_seeds.json \
+  --output=logs/triage_report.json
 ```
-執行後會產生一份結構化的分流報告，明確指出哪些配方可以直接放棄，哪些值得送進下一階段。
+
+執行後會產生結構化分流報告，清楚標註 Green / Yellow / Red 三大類。
 
 ---
 
-## 6. 專案架構 (Repository Structure)
+## 模型能力邊界與已知局限（重要）
 
-```text
-├── agy.js                     # 核心 CLI 與批次處理腳本
-├── dashboard.py               # Streamlit 視覺化展示面板
-├── requirements.txt           # Python 依賴清單
-├── README.md                  # 專案說明文件 (本文)
-├── src/
-│   ├── core/                  # UMD 跨平台核心演算法 (descriptors, penalty, interstitial)
-│   └── quantum/               # 隔離寫入區
+根據 [docs/validation_report.md](docs/validation_report.md) 的量化驗證，我們已識別以下系統性偏誤：
+
+| 偏誤 | 表現情境 | 嚴重程度 | 建議用途 |
+|------|----------|----------|----------|
+| Hardness 系統性高估 | 無間隙元素的高熵合金（退火態） | 高 | 僅用於相對排序，絕對值不可信 |
+| 高碳合金 SFE 高估 | C > 1.5 at.% 的 TWIP 鋼 | 中高 | 風險閘門反而因此加強，仍具實用價值 |
+| 極低碳慢冷敏化盲區 | 不鏽鋼長時效 / 0.1 K/s 級慢冷 | 高 | 此情境下需搭配其他工具 |
+| SFE 低估（低間隙系統） | CrCoNi、Cantor 等 | 中 | 仍能正確區分低/中 SFE 區間 |
+
+**9B-MMX 最適合**用於「高碳/中碳 Fe-Mn-Cr-Ni-C-N 系統」的快速風險過濾。
+在需要精確數值硬度、極低碳長時效行為、或完整相圖的場景，請務必搭配 CALPHAD 與實驗驗證。
+
+---
+
+## 專案結構
+
+```
+9b-mmx-alloy-screening/
+├── agy.js                     # 核心 CLI 與批次處理引擎
+├── dashboard.py               # Streamlit 視覺化面板
+├── src/core/                  # 跨平台物理描述符與風險計算核心
+│   ├── descriptors.js
+│   ├── interstitial.js
+│   └── penalty.js
 ├── docs/
-│   └── validation_report.md   # 模型預測 vs. 文獻實測的嚴謹誤差分析報告
+│   └── validation_report.md   # ← 文獻驗證與量化誤差分析（核心文件）
 ├── logs/
-│   └── tainan_foundry_fail.json # 歷史失敗/代理懲罰資料庫
-└── examples/
-    └── search_seeds/          # 供測試的合金 JSON 種子
+│   └── tainan_foundry_fail.json   # 歷史鑄造失敗代理資料庫
+├── examples/search_seeds/     # 測試用種子配方
+└── requirements.txt
 ```
 
 ---
 
-## 7. License
-This prototype is released under the MIT License.
+## License
+
+本專案以 MIT License 釋出。
+
+---
+
+**如果你正在開發新一代高強度、高韌性或低溫結構合金，並且希望在大量實驗之前先做一次嚴格的「物理可行性快篩」，歡迎使用 9B-MMX，並參考我們的驗證報告來評估其適用性。**
+
+有任何問題或想貢獻真實鑄造失敗數據，歡迎開 Issue 或直接聯絡。
