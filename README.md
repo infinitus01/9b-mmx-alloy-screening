@@ -8,6 +8,20 @@
 
 ---
 
+## Literature Benchmark Status
+
+A Phase 6 literature benchmark report is available at
+[docs/validation_report.md](docs/validation_report.md).
+
+The benchmark compares the current heuristic screening outputs against selected
+published alloy cases and documents known model biases, including SFE error,
+hardness overestimation, and low-carbon slow-cooling sensitization blind spots.
+
+These results define the current model boundary only. They do not validate
+9B-MMX as a material property predictor or alloy recommendation engine.
+
+---
+
 ## 1. Project Overview
 This repository provides a lightweight, rule-based screening prototype for multi-principal-element and structural alloy candidates. The Fe-Mn-Cr-Ni-C-N metastable structural steel system is fully integrated into the computational screening runtime (with physical calibrations remaining heuristic and unvalidated by physical melts). Legacy Al-Co-Cr-Fe-Ni descriptor compatibility is also preserved.
 

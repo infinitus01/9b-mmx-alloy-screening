@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Laplanche_CrCoNi_MEA",
+    "composition_at_pct": { "Cr": 33.33, "Co": 33.33, "Ni": 33.34 },
+    "process_parameters": { "cooling_rate_K_s": 10.0 }
+  },
+  {
+    "name": "DeCooman_TWIP_Steel",
+    "composition_at_pct": { "Fe": 75.7, "Mn": 21.6, "C": 2.7 },
+    "process_parameters": { "cooling_rate_K_s": 50.0 }
+  },
+  {
+    "name": "Cantor_Alloy_HEA",
+    "composition_at_pct": { "Fe": 20.0, "Mn": 20.0, "Cr": 20.0, "Ni": 20.0, "Co": 20.0 },
+    "process_parameters": { "cooling_rate_K_s": 10.0 }
+  },
+  {
+    "name": "AISI_304_Sensitized",
+    "composition_at_pct": { "Fe": 74.0, "Cr": 18.0, "Ni": 8.0 },
+    "process_parameters": { "cooling_rate_K_s": 0.1 }
+  }
+]
