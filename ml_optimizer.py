@@ -7,8 +7,20 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern, WhiteKernel
 from sklearn.preprocessing import StandardScaler
 
+"""
+Prototype-only surrogate demonstration.
+
+This module trains Gaussian Process models on synthetic labels generated
+by the 9B-MMX heuristic engine. These labels are **not** experimental
+ground truth, not CALPHAD results, and not validated material properties.
+
+Pareto-style outputs visualize heuristic trade-offs only.
+They must not be interpreted as alloy recommendations or material optimization.
+"""
+
 def generate_synthetic_data(num_samples=500):
-    """Generates random alloy compositions and runs them through the Node.js physical engine to create ground truth."""
+    """Generates random alloy compositions and runs them through the Node.js
+    physical engine to create synthetic heuristic teacher labels (not ground truth)."""
     seeds = []
     np.random.seed(42)
     for i in range(num_samples):
