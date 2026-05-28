@@ -1,10 +1,17 @@
 /**
  * 9B-MMX: Computational Alloy Screening Prototype
- * Command-Line Auditing Engine & Physics Consistency Auditor Simulator
+ * Command-Line Auditing Engine & Physics Consistency Auditor Simulator (Refactored)
  */
 
 const fs = require('fs');
 const path = require('path');
+
+// Import shared Core Modules
+const Descriptors = require('./src/core/descriptors.js');
+const Interstitial = require('./src/core/interstitial.js');
+const Penalty = require('./src/core/penalty.js');
+
+const ELEMENTS = Descriptors.ELEMENTS;
 
 // ANSI escape codes for stunning console output
 const CLR = {
@@ -24,92 +31,6 @@ const CLR = {
   bgRed: "\x1b[41m\x1b[37m"
 };
 
-// Elemental physical constants for alloy screening descriptors
-const ELEMENTS = {
-  Al: { vec: 3, r: 1.43, T_m: 933, cost: 2.2, type: "substitutional" },   // r in Angstroms, cost in USD/kg
-  Co: { vec: 9, r: 1.25, T_m: 1768, cost: 35.0, type: "substitutional" },
-  Cr: { vec: 6, r: 1.28, T_m: 2180, cost: 9.8, type: "substitutional" },
-  Fe: { vec: 8, r: 1.26, T_m: 1811, cost: 0.5, type: "substitutional" },
-  Ni: { vec: 10, r: 1.24, T_m: 1728, cost: 16.5, type: "substitutional" },
-  Mn: { vec: 7, r: 1.27, T_m: 1519, cost: 1.8, type: "substitutional" },
-  C: { vec: 4, r: 0.77, T_m: 3823, cost: 0.1, type: "interstitial" },
-  N: { vec: 5, r: 0.71, T_m: 63, cost: 0.05, type: "interstitial" }
-};
-
-const ATOMIC_MASS = {
-  Al: 26.98,
-  Co: 58.93,
-  Cr: 52.00,
-  Fe: 55.85,
-  Mn: 54.94,
-  Ni: 58.69,
-  C: 12.01,
-  N: 14.01
-};
-
-function atPctToWtPct(composition) {
-  let totalMass = 0;
-  for (let el in composition) {
-    if (composition[el] > 0) {
-      totalMass += (composition[el] / 100) * (ATOMIC_MASS[el] || 0);
-    }
-  }
-  const wtPct = {};
-  if (totalMass === 0) {
-    for (let el in composition) {
-      wtPct[el] = 0;
-    }
-    return wtPct;
-  }
-  for (let el in composition) {
-    wtPct[el] = (((composition[el] / 100) * (ATOMIC_MASS[el] || 0)) / totalMass) * 100;
-  }
-  return wtPct;
-}
-
-function getFormula(composition) {
-  const subscriptMap = {
-    '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
-    '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
-    '.': '·'
-  };
-  let parts = [];
-  const sortedElements = ['Fe', 'Mn', 'Cr', 'Ni', 'Co', 'Al', 'C', 'N'];
-  for (let el in composition) {
-    if (!sortedElements.includes(el)) {
-      sortedElements.push(el);
-    }
-  }
-  sortedElements.forEach(el => {
-    const val = composition[el];
-    if (val > 0) {
-      const valStr = val % 1 === 0 ? val.toString() : val.toFixed(1);
-      const subStr = valStr.split('').map(char => subscriptMap[char] || char).join('');
-      parts.push(`${el}${subStr}`);
-    }
-  });
-  return parts.join('');
-}
-
-// Enthalpies of mixing (dH_ij, kJ/mol)
-const MIXING_ENTHALPIES = {
-  "Al-Co": -19, "Al-Cr": -10, "Al-Fe": -11, "Al-Ni": -22,
-  "Co-Cr": -4,  "Co-Fe": -1,  "Co-Ni": 0,
-  "Cr-Fe": -1,  "Cr-Ni": -7,
-  "Fe-Ni": -2,
-  "Al-Mn": -19, "Co-Mn": -5, "Cr-Mn": 2, "Fe-Mn": 0, "Mn-Ni": -8,
-  "Cr-N": -188, "Mn-N": -164, "Fe-N": -123, "Ni-N": -79,
-  "Cr-C": -61, "Mn-C": -49, "Fe-C": -50, "Ni-C": -39
-};
-
-function getdH(el1, el2) {
-  const pair1 = `${el1}-${el2}`;
-  const pair2 = `${el2}-${el1}`;
-  if (MIXING_ENTHALPIES[pair1] !== undefined) return MIXING_ENTHALPIES[pair1];
-  if (MIXING_ENTHALPIES[pair2] !== undefined) return MIXING_ENTHALPIES[pair2];
-  return 0;
-}
-
 // Parse Command Line Arguments
 const args = process.argv.slice(2);
 const commandStr = args.join(' ');
@@ -125,7 +46,7 @@ let config = {
   maxConcurrent: 3,
   tolerance: 1e-6,
   checkVEC: true,
-  forbiddenPhases: ["Laves_phase", "sigma_phase_at_high_temp"],
+  forbiddenPhases: ["Laves_phase", "sigma_phase_at_high_temp", "Cr2N_nitride", "M23C6_carbide"],
   cmepEnabled: false,
   cmepWindow: 500
 };
@@ -183,9 +104,8 @@ try {
   console.log(`${CLR.red}[❌] 載入失敗記憶庫發生錯誤: ${err.message}${CLR.reset}`);
 }
 
-// Define the built-in alloy candidate configuration to audit (Fe46 Mn24 Cr18 Ni10 N2 at.%)
-// Normalized composition: sums to 100% exactly
-const candidate = {
+// Define the default alloy candidate
+const defaultCandidate = {
   alloy_name: "Fe46-Mn24-Cr18-Ni10-N2",
   composition: {
     Al: 0.0,
@@ -198,12 +118,189 @@ const candidate = {
     N: 2.0
   },
   process: {
-    cooling_rate_K_s: 0.6, // Slow cooling
+    cooling_rate_K_s: 0.6,
     heat_treatment_temp_C: 1050,
     work_stress_MPa: 60,
     melting_atmosphere: "Vacuum_Induction"
   }
 };
+
+// ==========================================
+// Batch Screening Feature Implementation
+// ==========================================
+if (args[0] === '/batch-screen') {
+  let inputPath = null;
+  let outputPath = null;
+
+  for (let i = 1; i < args.length; i++) {
+    if (args[i].startsWith('--input=')) {
+      inputPath = args[i].substring('--input='.length);
+    } else if (args[i].startsWith('--output=')) {
+      outputPath = args[i].substring('--output='.length);
+    }
+  }
+
+  if (!inputPath || !outputPath) {
+    console.log(`${CLR.red}[❌] 錯誤: 請提供 --input=<path> 與 --output=<path> 引數。${CLR.reset}`);
+    process.exit(1);
+  }
+
+  const fullInputPath = path.resolve(inputPath);
+  if (!fs.existsSync(fullInputPath)) {
+    console.log(`${CLR.red}[❌] 錯誤: 找不到輸入檔案 ${fullInputPath}${CLR.reset}`);
+    process.exit(1);
+  }
+
+  console.log(`${CLR.cyan}[Batch] 載入批次篩選種子名單: ${fullInputPath}...${CLR.reset}`);
+  let batchList = [];
+  try {
+    const rawData = fs.readFileSync(fullInputPath, 'utf8');
+    batchList = JSON.parse(rawData);
+    if (!Array.isArray(batchList)) {
+      // If it's a seed index wrapping multiple compositions
+      if (batchList.seeds) {
+        batchList = batchList.seeds;
+      } else {
+        batchList = [batchList];
+      }
+    }
+  } catch (err) {
+    console.log(`${CLR.red}[❌] 解析輸入 JSON 發生錯誤: ${err.message}${CLR.reset}`);
+    process.exit(1);
+  }
+
+  console.log(`${CLR.green}[Batch] 成功載入 ${batchList.length} 個配方種子。啟動高通量 Candidate Triage 審核程序...${CLR.reset}\n`);
+
+  const triageTable = {
+    timestamp: new Date().toISOString(),
+    total_evaluated: batchList.length,
+    triage_summary: {
+      green_lower_risk: 0,
+      yellow_moderate_risk: 0,
+      red_high_risk: 0
+    },
+    lower_risk_screening_rank: [],
+    moderate_risk_candidates: [],
+    triage_out_candidates: []
+  };
+
+  batchList.forEach((item, index) => {
+    const comp = item.composition || item.composition_at_pct;
+    const proc = item.process || item.process_parameters || { cooling_rate_K_s: 1.0 };
+    const alloyName = item.alloy_name || item.name || `Batch-Seed-#${index + 1}`;
+
+    // Verify composition sum
+    let totalAt = 0;
+    for (let el in comp) totalAt += comp[el];
+    const sumDiff = Math.abs(totalAt - 100);
+
+    // Calculate Descriptors
+    const des = Descriptors.calculateDescriptors(comp, proc.cooling_rate_K_s);
+    const cost = Descriptors.calculateRawMaterialCostIndex(comp);
+    const intRisk = Interstitial.calculateInterstitialPrecipitationRisk(comp);
+    const sol = Interstitial.checkInterstitialSolubility(comp);
+    const sieverts = Interstitial.calculateExperimentalSievertsNLimit(comp);
+
+    // Calculate Penalty
+    const pen = Penalty.calculatePenalty(comp, proc.cooling_rate_K_s, failureLogs);
+    const P_foundry = pen.total_penalty_score;
+
+    // Evaluate Phase Risks
+    let isSigmaRisk = des.VEC >= 6.8 && des.VEC <= 7.6;
+    let isLavesRisk = des.delta >= 8.0 || (des.delta >= 5.0 && des.VEC < 8.0);
+    let detectedForbidden = [];
+    if (isSigmaRisk) detectedForbidden.push("sigma_phase_at_high_temp");
+    if (isLavesRisk) detectedForbidden.push("Laves_phase");
+    if (sol.isNExceeded) detectedForbidden.push("Cr2N_nitride");
+    if (sol.isCExceeded) detectedForbidden.push("M23C6_carbide");
+
+    let hasMajorPhaseRisk = detectedForbidden.some(p => config.forbiddenPhases.includes(p));
+
+    // Determine Triage Class
+    let triageClass = "Yellow (Moderate-Risk)";
+    let reason = "Minor boundary warnings.";
+
+    const isSumOk = sumDiff <= config.tolerance;
+    const isDesOk = des.delta <= 6.6 && des.dH_mix >= -15 && des.dH_mix <= 5 && des.omega >= 1.1;
+    const isSfeOk = des.estimated_SFE_heuristic_index >= 15 && des.estimated_SFE_heuristic_index <= 40;
+    const isPrenOk = des.PREN >= 25;
+
+    if (!isSumOk) {
+      triageClass = "Red (High-Risk/Triage-Out)";
+      reason = `Composition sum total (${totalAt.toFixed(4)} at.%) deviates past tolerance.`;
+    } else if (sol.isInterstitialExceeded) {
+      triageClass = "Red (High-Risk/Triage-Out)";
+      reason = "Interstitial solubility limit exceeded.";
+    } else if (P_foundry >= 0.40) {
+      triageClass = "Red (High-Risk/Triage-Out)";
+      reason = `High failure proximity score (P_foundry = ${P_foundry.toFixed(4)}).`;
+    } else if (hasMajorPhaseRisk && config.forbiddenPhases.length > 0) {
+      triageClass = "Red (High-Risk/Triage-Out)";
+      reason = `Critical forbidden phase flagged: [${detectedForbidden.join(', ')}].`;
+    } else if (isDesOk && isSfeOk && isPrenOk && P_foundry < 0.25) {
+      triageClass = "Green (Lower-Risk)";
+      reason = "All strict criteria and safety bounds satisfied.";
+    } else {
+      // Yellow cases
+      let yellowReasons = [];
+      if (!isDesOk) yellowReasons.push("Substitutional HEA limits deviated");
+      if (!isSfeOk) yellowReasons.push("SFE deviated from best TRIP/TWIP zone");
+      if (!isPrenOk) yellowReasons.push("PREN < 25");
+      if (P_foundry >= 0.25) yellowReasons.push("Approaching failure proxy zone");
+      reason = yellowReasons.join("; ") || "Minor process deviation.";
+    }
+
+    const triageRecord = {
+      alloy_name: alloyName,
+      formula: Descriptors.getFormula(comp),
+      composition: comp,
+      process: proc,
+      screening_results: {
+        VEC: des.VEC,
+        delta_percent: des.delta,
+        dH_mix_kJ_mol: des.dH_mix,
+        omega: des.omega,
+        estimated_SFE_heuristic_index: des.estimated_SFE_heuristic_index,
+        PREN: des.PREN,
+        surrogate_hardness_HV: des.surrogate_hardness_HV,
+        interstitial_precipitation_risk_kJ_mol: intRisk,
+        P_foundry: P_foundry,
+        experimental_sieverts_n_limit_at: sieverts.limit_at,
+        triage_class: triageClass,
+        triage_reason: reason
+      }
+    };
+
+    if (triageClass === "Green (Lower-Risk)") {
+      triageTable.triage_summary.green_lower_risk++;
+      triageTable.lower_risk_screening_rank.push(triageRecord);
+    } else if (triageClass === "Red (High-Risk/Triage-Out)") {
+      triageTable.triage_summary.red_high_risk++;
+      triageTable.triage_out_candidates.push(triageRecord);
+    } else {
+      triageTable.triage_summary.yellow_moderate_risk++;
+      triageTable.moderate_risk_candidates.push(triageRecord);
+    }
+  });
+
+  // Sort ranks by lower P_foundry or better parameters
+  triageTable.lower_risk_screening_rank.sort((a, b) => a.screening_results.P_foundry - b.screening_results.P_foundry);
+
+  // Write triage table report
+  fs.writeFileSync(path.resolve(outputPath), JSON.stringify(triageTable, null, 2), 'utf8');
+
+  console.log(`\n${CLR.bright}${CLR.bgYellow}【 Candidate Triage Summary 候選分流審計結果 】${CLR.reset}`);
+  console.log(`  🟢 綠色低風險區 (Lower-Risk Ranks): ${CLR.green}${triageTable.triage_summary.green_lower_risk} 筆${CLR.reset}`);
+  console.log(`  🟡 黃色邊界警告區 (Moderate-Risk): ${CLR.yellow}${triageTable.triage_summary.yellow_moderate_risk} 筆${CLR.reset}`);
+  console.log(`  🔴 紅色阻斷剔除區 (Triage-Out): ${CLR.red}${triageTable.triage_summary.red_high_risk} 筆${CLR.reset}`);
+  console.log(`\n${CLR.green}[✔] 批次篩選分流表已成功寫入 ${outputPath}${CLR.reset}\n`);
+  process.exit(0);
+}
+
+// ==========================================
+// Default /goal auditing simulation sequence
+// ==========================================
+const candidate = defaultCandidate;
 
 // Calculate total atomic concentration
 let totalAt = 0;
@@ -212,7 +309,7 @@ for (let el in candidate.composition) {
 }
 
 // Check command goals against the active built-in candidate.
-const expectedGoalTerms = [candidate.alloy_name, getFormula(candidate.composition)];
+const expectedGoalTerms = [candidate.alloy_name, Descriptors.getFormula(candidate.composition)];
 if (!expectedGoalTerms.some(term => commandStr.includes(term))) {
   console.log(`\n${CLR.yellow}[ℹ] 警告: 未指定標準目標任務，預設對 [${candidate.alloy_name}] 進行 9B-MMX 物理合理性審核。${CLR.reset}\n`);
 }
@@ -223,7 +320,7 @@ const runTimeline = async () => {
 
   console.log(`\n${CLR.bright}${CLR.magenta}--- 01. [總監 Director] 啟動材料計算篩選程序 ---${CLR.reset}`);
   await sleep(600);
-  console.log(`${CLR.dim}[Director] 定義初始搜尋成分空間，將 ${candidate.alloy_name} (${getFormula(candidate.composition)}) 掛載至篩選核心...${CLR.reset}`);
+  console.log(`${CLR.dim}[Director] 定義初始搜尋成分空間，將 ${candidate.alloy_name} (${Descriptors.getFormula(candidate.composition)}) 掛載至篩選核心...${CLR.reset}`);
   console.log(`${CLR.cyan}[Director] 讀取歷史/代理失敗數據，建立 failure-distance penalty model 評估核心${CLR.reset}`);
   await sleep(700);
 
@@ -237,129 +334,26 @@ const runTimeline = async () => {
   }
   console.log(`${CLR.dim}[Architect] 候選成分載入：${compParts.join(', ')}${CLR.reset}`);
 
-  // Calculate substitutional total and normalize
-  let totalSub = 0;
-  for (let el in candidate.composition) {
-    if (ELEMENTS[el] && ELEMENTS[el].type === "substitutional") {
-      totalSub += candidate.composition[el];
-    }
-  }
+  // Calculate HEA Descriptors (Substitutional-Only via Core)
+  const des = Descriptors.calculateDescriptors(candidate.composition, candidate.process.cooling_rate_K_s);
+  const wtPct = Descriptors.atPctToWtPct(candidate.composition);
+  const totalCost = Descriptors.calculateRawMaterialCostIndex(candidate.composition);
 
-  // Normalize substitutional elements
-  let subComposition = {};
-  for (let el in candidate.composition) {
-    if (ELEMENTS[el] && ELEMENTS[el].type === "substitutional") {
-      subComposition[el] = totalSub > 0 ? (candidate.composition[el] / totalSub) * 100 : 0;
-    }
-  }
-
-  // Calculate HEA Descriptors (Substitutional-Only)
-  let VEC = 0;
-  let r_bar = 0;
-  for (let el in subComposition) {
-    let c = subComposition[el] / 100;
-    VEC += c * ELEMENTS[el].vec;
-    r_bar += c * ELEMENTS[el].r;
-  }
-
-  let deltaSum = 0;
-  for (let el in subComposition) {
-    let c = subComposition[el] / 100;
-    deltaSum += c * Math.pow(1 - (ELEMENTS[el].r / r_bar), 2);
-  }
-  let delta = 100 * Math.sqrt(deltaSum);
-
-  let dH_mix = 0;
-  const elementsKeys = Object.keys(subComposition);
-  for (let i = 0; i < elementsKeys.length; i++) {
-    for (let j = i + 1; j < elementsKeys.length; j++) {
-      let el1 = elementsKeys[i];
-      let el2 = elementsKeys[j];
-      let c1 = subComposition[el1] / 100;
-      let c2 = subComposition[el2] / 100;
-      dH_mix += 4 * getdH(el1, el2) * c1 * c2;
-    }
-  }
-
-  let dS_mix = 0;
-  const R = 8.314;
-  for (let el in subComposition) {
-    let c = subComposition[el] / 100;
-    if (c > 0) dS_mix -= R * c * Math.log(c);
-  }
-
-  let T_m = 0;
-  for (let el in subComposition) {
-    let c = subComposition[el] / 100;
-    T_m += c * ELEMENTS[el].T_m;
-  }
-
-  let omega = dH_mix !== 0 ? (T_m * dS_mix) / (Math.abs(dH_mix) * 1000) : Infinity;
-
-  // New descriptors
-  const wtPct = atPctToWtPct(candidate.composition);
-  const PREN = (wtPct.Cr || 0) + 16 * (wtPct.N || 0);
-
-  // Stacking Fault Energy (SFE) Heuristic Index (wt.% based)
-  const estimated_SFE_heuristic_index = 25.7 +
-    2.0 * (wtPct.Ni || 0) -
-    0.9 * (wtPct.Cr || 0) -
-    0.1 * (wtPct.Mn || 0) +
-    30.0 * (wtPct.C || 0) -
-    15.0 * (wtPct.N || 0) +
-    5.0 * (wtPct.Al || 0) -
-    1.5 * (wtPct.Co || 0);
-
-  // Interstitial Precipitation Risk
-  let interstitial_precipitation_risk = 0;
-  for (let elSub in candidate.composition) {
-    if (ELEMENTS[elSub] && ELEMENTS[elSub].type === "substitutional") {
-      const cSub = candidate.composition[elSub] / 100;
-      for (let elInt in candidate.composition) {
-        if (ELEMENTS[elInt] && ELEMENTS[elInt].type === "interstitial") {
-          const cInt = candidate.composition[elInt] / 100;
-          if (cSub > 0 && cInt > 0) {
-            const dH = getdH(elSub, elInt);
-            interstitial_precipitation_risk += 4 * Math.abs(dH) * cSub * cInt;
-          }
-        }
-      }
-    }
-  }
-
-  // Interstitial Solubility check
-  const crAt = candidate.composition.Cr || 0;
-  const cAt = candidate.composition.C || 0;
-  const nAt = candidate.composition.N || 0;
-  const nLimit = 1.5 + 0.04 * crAt;
-  const cLimit = 1.2;
-  const totalLimit = 3.0;
-  const isNExceeded = nAt > nLimit;
-  const isCExceeded = cAt > cLimit;
-  const isTotalExceeded = (cAt + nAt) > totalLimit;
-  const isInterstitialExceeded = isNExceeded || isCExceeded || isTotalExceeded;
-
-  // Phase prediction
-  let predictedPhase = "Amorphous / Undefined";
-  if (delta <= 6.6 && dH_mix >= -15 && dH_mix <= 5 && omega >= 1.1) {
-    if (VEC >= 8.0) predictedPhase = "Single FCC Phase (Ductile)";
-    else if (VEC < 6.87) predictedPhase = "Single BCC Phase (Strong)";
-    else predictedPhase = "Mixed FCC + BCC Phase";
-  } else if (delta > 6.6 && dH_mix < -15) {
-    predictedPhase = "Intermetallic Compound (Brittle)";
-  } else {
-    predictedPhase = "Multi-phase mixture (High segregation risk)";
-  }
+  // Calculate Interstitial Risk & Solubility
+  const interstitial_precipitation_risk = Interstitial.calculateInterstitialPrecipitationRisk(candidate.composition);
+  const sol = Interstitial.checkInterstitialSolubility(candidate.composition);
+  const sieverts = Interstitial.calculateExperimentalSievertsNLimit(candidate.composition);
 
   console.log(`${CLR.cyan}[Architect] 計算所得顯式描述符：${CLR.reset}`);
-  console.log(`    - 價電子濃度 VEC: ${VEC.toFixed(3)}`);
-  console.log(`    - 原子半徑偏差 δ: ${delta.toFixed(3)}%`);
-  console.log(`    - 混合焓 ΔH_mix: ${dH_mix.toFixed(2)} kJ/mol`);
-  console.log(`    - 熵能參數 Ω: ${omega === Infinity ? 'Infinity' : omega.toFixed(3)}`);
-  console.log(`    - 疊差能指標 SFE Index: ${estimated_SFE_heuristic_index.toFixed(1)} mJ/m²`);
-  console.log(`    - 耐點蝕當量 PREN: ${PREN.toFixed(1)}`);
+  console.log(`    - 價電子濃度 VEC: ${des.VEC.toFixed(3)}`);
+  console.log(`    - 原子半徑偏差 δ: ${des.delta.toFixed(3)}%`);
+  console.log(`    - 混合焓 ΔH_mix: ${des.dH_mix.toFixed(2)} kJ/mol`);
+  console.log(`    - 熵能參數 Ω: ${des.omega === Infinity ? 'Infinity' : des.omega.toFixed(3)}`);
+  console.log(`    - 疊差能指標 SFE Index: ${des.estimated_SFE_heuristic_index.toFixed(1)} mJ/m²`);
+  console.log(`    - 耐點蝕當量 PREN: ${des.PREN.toFixed(1)}`);
   console.log(`    - 間隙相析出風險 Interstitial Risk: ${interstitial_precipitation_risk.toFixed(2)} kJ/mol`);
-  console.log(`    - 晶相結構預測: ${predictedPhase}`);
+  console.log(`    - 實驗性 Sieverts 氮溶解上限 (1600°C, 1atm): ${sieverts.limit_at.toFixed(2)} at.% (${sieverts.limit_wt.toFixed(4)} wt.%) [僅供實驗參考]`);
+  console.log(`    - 晶相結構預測: ${des.predictedPhase}`);
   await sleep(800);
 
   console.log(`\n${CLR.bright}${CLR.magenta}--- 02. [物理合理性審計員 Physics Consistency Auditor] 執行規則描述符驗證 ---${CLR.reset}`);
@@ -378,10 +372,10 @@ const runTimeline = async () => {
 
   // Phase stability check (rule-based risk flag)
   console.log(`${CLR.dim}[Auditor] [步驟 2/3] 比對相穩定性規則限制 (rule-based phase-risk flags)...${CLR.reset}`);
-  let isSigmaRisk = VEC >= 6.8 && VEC <= 7.6;
-  let isLavesRisk = delta >= 8.0 || (delta >= 5.0 && VEC < 8.0);
-  let isCr2N = isNExceeded;
-  let isM23C6 = isCExceeded;
+  let isSigmaRisk = des.VEC >= 6.8 && des.VEC <= 7.6;
+  let isLavesRisk = des.delta >= 8.0 || (des.delta >= 5.0 && des.VEC < 8.0);
+  let isCr2N = sol.isNExceeded;
+  let isM23C6 = sol.isCExceeded;
 
   let detectedForbidden = [];
   if (isSigmaRisk) detectedForbidden.push("sigma_phase_at_high_temp");
@@ -402,57 +396,25 @@ const runTimeline = async () => {
   }
 
   // Interstitial Solubility check in Auditor
-  if (isInterstitialExceeded) {
+  if (sol.isInterstitialExceeded) {
     let reasons = [];
-    if (isNExceeded) reasons.push(`N: ${nAt.toFixed(2)} at.% > limit ${nLimit.toFixed(2)} at.%`);
-    if (isCExceeded) reasons.push(`C: ${cAt.toFixed(2)} at.% > limit ${cLimit.toFixed(2)} at.%`);
-    if (isTotalExceeded) reasons.push(`C+N: ${(cAt + nAt).toFixed(2)} at.% > limit ${totalLimit.toFixed(2)} at.%`);
+    if (sol.isNExceeded) reasons.push(`N: ${candidate.composition.N.toFixed(2)} at.% > limit ${sol.nLimit.toFixed(2)} at.%`);
+    if (sol.isCExceeded) reasons.push(`C: ${candidate.composition.C.toFixed(2)} at.% > limit ${sol.cLimit.toFixed(2)} at.%`);
+    if (sol.isTotalExceeded) reasons.push(`C+N: ${(candidate.composition.C + candidate.composition.N).toFixed(2)} at.% > limit ${sol.totalLimit.toFixed(2)} at.%`);
     console.log(`${CLR.yellow}[Auditor] [⚠️ 間隙溶解度溢出] 觸發間隙型固溶極限警告: ${reasons.join(', ')}。冶煉中可能析出粗大間隙相。${CLR.reset}`);
   } else if ((candidate.composition.C || 0) > 0 || (candidate.composition.N || 0) > 0) {
     console.log(`${CLR.green}[Auditor] [✔] 間隙型元素固溶度審查通過。${CLR.reset}`);
   }
   await sleep(700);
 
-  // Failure-distance penalty model calculation
+  // Failure-distance penalty model calculation via Core
   console.log(`${CLR.dim}[Auditor] [步驟 3/3] 計算失敗/代理距離懲罰 (failure/proxy-distance penalty)...${CLR.reset}`);
 
-  let P_foundry = 0;
-  let penaltyDetails = [];
-
-  // Formula: P = Sum_d (w_d * exp(- ||x - x_fail||^2 / (2 * sigma_d^2)) * process_correction * time_decay)
-  failureLogs.forEach(fail => {
-    // Calculate composition distance squared in full Euclidean space
-    let distanceSq = 0;
-    let components = Array.from(new Set([...Object.keys(candidate.composition), ...Object.keys(fail.composition)]));
-    components.forEach(el => {
-      let x1 = candidate.composition[el] || 0;
-      let x2 = fail.composition[el] || 0;
-      distanceSq += Math.pow(x1 - x2, 2);
-    });
-
-    // Process parameters correction g(p_process)
-    let coolingDiff = Math.abs(candidate.process.cooling_rate_K_s - fail.process_parameters.cooling_rate_K_s);
-    let processCorrection = Math.exp(-Math.pow(coolingDiff, 2) / 2.0);
-
-    // Dynamic penalty value
-    let exponent = -distanceSq / (2 * Math.pow(fail.kernel_bandwidth, 2));
-    let basePenalty = fail.severity_weight * Math.exp(exponent);
-    let finalPenalty = basePenalty * processCorrection;
-
-    P_foundry += finalPenalty;
-
-    penaltyDetails.push({
-      fail_id: fail.id,
-      alloy_name: fail.alloy_name,
-      defect_type: fail.defect_type,
-      distance: Math.sqrt(distanceSq).toFixed(2),
-      raw_penalty: basePenalty.toFixed(4),
-      final_penalty: finalPenalty.toFixed(4)
-    });
-  });
+  const pen = Penalty.calculatePenalty(candidate.composition, candidate.process.cooling_rate_K_s, failureLogs);
+  const P_foundry = pen.total_penalty_score;
 
   console.log(`${CLR.cyan}[Auditor] 失敗/代理距離懲罰加權計算結果：${CLR.reset}`);
-  penaltyDetails.forEach(p => {
+  pen.details.forEach(p => {
     console.log(`    - 距離失敗/代理樣本 [${p.alloy_name} (${p.defect_type})]: 距離=${p.distance} at.%, 最終懲罰權重=${p.final_penalty}`);
   });
   console.log(`${CLR.bright}${CLR.yellow}    => 失敗/代理總懲罰分值 P_foundry = ${P_foundry.toFixed(4)}${CLR.reset}`);
@@ -471,24 +433,9 @@ const runTimeline = async () => {
   console.log(`\n${CLR.bright}${CLR.magenta}--- 06. [電子結構開發員 Electronic Developer] 預估微觀硬度 ---${CLR.reset}`);
   await sleep(600);
   console.log(`${CLR.dim}[Electronic Developer] 調用 surrogate hardness estimate 預估微觀機械硬度...${CLR.reset}`);
+  console.log(`${CLR.cyan}[Electronic Developer] surrogate hardness estimate 預估維氏硬度 HV = ${des.surrogate_hardness_HV.toFixed(1)}${CLR.reset}`);
 
-  // Predict Vickers Hardness HV
-  let baseHardness = 150;
-  baseHardness += (candidate.composition.Al || 0) * 12.5;
-  baseHardness += (candidate.composition.Cr || 0) * 3.5;
-  baseHardness += (candidate.composition.Mn || 0) * 2.8;
-  baseHardness += (candidate.composition.N || 0) * 85.0;
-  baseHardness += (candidate.composition.C || 0) * 120.0;
-
-  // Apply thermal effect
-  if (candidate.process.cooling_rate_K_s < 1.0) {
-    baseHardness -= 25; // slow cooling leads to annealing/softening
-  }
-
-  const predictedHardnessHV = baseHardness;
-  console.log(`${CLR.cyan}[Electronic Developer] surrogate hardness estimate 預估維氏硬度 HV = ${predictedHardnessHV.toFixed(1)}${CLR.reset}`);
-
-  let isOOD = predictedHardnessHV > 650;
+  let isOOD = des.surrogate_hardness_HV > 650;
   if (isOOD) {
     console.log(`${CLR.bright}${CLR.yellow}[提示] 預估硬度接近理論臨界值，建議進行實體物理硬度測試確認。${CLR.reset}`);
   } else {
@@ -498,12 +445,6 @@ const runTimeline = async () => {
 
   console.log(`\n${CLR.bright}${CLR.magenta}--- 08. [成本與工藝評估員 Cost Evaluator] 評估工藝可行性 ---${CLR.reset}`);
   await sleep(500);
-  let totalCost = 0;
-  for (let el in candidate.composition) {
-    if (ELEMENTS[el]) {
-      totalCost += (candidate.composition[el] / 100) * ELEMENTS[el].cost;
-    }
-  }
   console.log(`${CLR.dim}[Cost Evaluator] 配方原料估算成本指數 (approximate raw-material cost index): $${totalCost.toFixed(2)} USD/kg (註：此為 at.% 加權計算，非真實質量比例)${CLR.reset}`);
   const processNotes = [];
   if ((candidate.composition.C || 0) > 0 || (candidate.composition.N || 0) > 0) {
@@ -522,23 +463,23 @@ const runTimeline = async () => {
   await sleep(800);
 
   // Formulate final report
-  const isSafe = P_foundry < 0.25 && phaseAuditPassed && !isInterstitialExceeded;
+  const isSafe = P_foundry < 0.25 && phaseAuditPassed && !sol.isInterstitialExceeded;
   const statusString = isSafe ? "通過規則篩選 (Descriptor Filter Passed)" : "高風險篩選結果 (High-risk screening result)";
 
   console.log(`${CLR.bright}${CLR.bgYellow}【 9B-MMX 材料計算篩選 風險評估報告 】${CLR.reset}`);
-  console.log(`[候選配方] ${candidate.alloy_name} (${getFormula(candidate.composition)})`);
+  console.log(`[候選配方] ${candidate.alloy_name} (${Descriptors.getFormula(candidate.composition)})`);
   console.log(`[驗證狀態] ${isSafe ? CLR.green : CLR.red}${statusString}${CLR.reset}`);
-  console.log(`[物理特徵] VEC=${VEC.toFixed(3)}, δ=${delta.toFixed(3)}%, ΔH_mix=${dH_mix.toFixed(2)} kJ/mol, Ω=${omega === Infinity ? 'Infinity' : omega.toFixed(3)}`);
-  console.log(`[額外描述] SFE Index=${estimated_SFE_heuristic_index.toFixed(1)} mJ/m², PREN=${PREN.toFixed(1)}, Interstitial Risk=${interstitial_precipitation_risk.toFixed(2)} kJ/mol`);
-  console.log(`[晶相預測] ${predictedPhase}`);
-  console.log(`[預估硬度] HV ${predictedHardnessHV.toFixed(1)} (Surrogate Hardness Estimate)`);
+  console.log(`[物理特徵] VEC=${des.VEC.toFixed(3)}, δ=${des.delta.toFixed(3)}%, ΔH_mix=${des.dH_mix.toFixed(2)} kJ/mol, Ω=${des.omega === Infinity ? 'Infinity' : des.omega.toFixed(3)}`);
+  console.log(`[額外描述] SFE Index=${des.estimated_SFE_heuristic_index.toFixed(1)} mJ/m², PREN=${des.PREN.toFixed(1)}, Interstitial Risk=${interstitial_precipitation_risk.toFixed(2)} kJ/mol`);
+  console.log(`[晶相預測] ${des.predictedPhase}`);
+  console.log(`[預估硬度] HV ${des.surrogate_hardness_HV.toFixed(1)} (Surrogate Hardness Estimate)`);
   console.log(`[失敗/代理懲罰分值] P_foundry = ${P_foundry.toFixed(4)}`);
 
   if (P_foundry > 0.4) {
     console.log(`${CLR.red}    - 提示: 該成分與失敗/代理樣本高度接近。`);
     console.log(`      若在此冷卻速率 (${candidate.process.cooling_rate_K_s} K/s) 下進行實體熔煉，存在脆性析出開裂的高風險。${CLR.reset}`);
   }
-  if (isInterstitialExceeded) {
+  if (sol.isInterstitialExceeded) {
     console.log(`${CLR.red}    - 提示: 超出間隙型固溶度上限，可能析出粗大間隙相。${CLR.reset}`);
   }
 
@@ -551,17 +492,17 @@ const runTimeline = async () => {
     composition: candidate.composition,
     process: candidate.process,
     descriptors: {
-      VEC: VEC,
-      delta_percent: delta,
-      dH_mix_kJ_mol: dH_mix,
-      entropy_param_omega: omega,
-      predicted_phase: predictedPhase,
-      estimated_SFE_heuristic_index: estimated_SFE_heuristic_index,
-      PREN: PREN,
+      VEC: des.VEC,
+      delta_percent: des.delta,
+      dH_mix_kJ_mol: des.dH_mix,
+      entropy_param_omega: des.omega,
+      predicted_phase: des.predictedPhase,
+      estimated_SFE_heuristic_index: des.estimated_SFE_heuristic_index,
+      PREN: des.PREN,
       interstitial_precipitation_risk: interstitial_precipitation_risk
     },
     hardness_predictions: {
-      surrogate_hardness_HV: predictedHardnessHV,
+      surrogate_hardness_HV: des.surrogate_hardness_HV,
       is_extreme_prediction: isOOD
     },
     physics_sanity_gate: {
@@ -569,19 +510,19 @@ const runTimeline = async () => {
       element_sum_deviation: sumDiff,
       tolerance: config.tolerance,
       phase_risk_flags_triggered: detectedForbidden,
-      passed: phaseAuditPassed && !isInterstitialExceeded,
+      passed: phaseAuditPassed && !sol.isInterstitialExceeded,
       interstitial_solubility: {
-        is_N_exceeded: isNExceeded,
-        is_C_exceeded: isCExceeded,
-        is_total_exceeded: isTotalExceeded,
-        passed: !isInterstitialExceeded
+        is_N_exceeded: sol.isNExceeded,
+        is_C_exceeded: sol.isCExceeded,
+        is_total_exceeded: sol.isTotalExceeded,
+        passed: !sol.isInterstitialExceeded
       }
     },
     failure_distance_penalty_model: {
       total_penalty_score: P_foundry,
       threshold: 0.25,
       is_high_risk: P_foundry >= 0.25,
-      details: penaltyDetails
+      details: pen.details
     },
     risk_evaluation: {
       approximate_raw_material_cost_index: totalCost,
@@ -607,7 +548,7 @@ const runTimeline = async () => {
 
 > [!IMPORTANT]
 > **候選合金配方安全等級審核狀態：${isSafe ? '🟢 物理過濾通過 (SAFE_EXPLORATION)' : '🔴 高風險篩選結果 (HIGH_RISK_SCREENING_RESULT)'}**
-> - **評估對象**: ${candidate.alloy_name} (${getFormula(candidate.composition)})
+> - **評估對象**: ${candidate.alloy_name} (${Descriptors.getFormula(candidate.composition)})
 > - **產出時間**: ${new Date().toISOString()}
 > - **核驗標準**: [AGENTS.md](../AGENTS.md) 物理一致性閘門規範
 > - **方法學參考**: [docs/methodology.md](../docs/methodology.md)
@@ -624,12 +565,12 @@ const runTimeline = async () => {
 
 | 描述符項目 (Descriptor) | 計算預測值 | 熱力學安全閾值 / 物理意涵 | 篩選評估 |
 | :--- | :--- | :--- | :--- |
-| **價電子濃度 (VEC)** | ${VEC.toFixed(3)} | $\\ge 8.0$ (單相 FCC), $< 6.87$ (單相 BCC) | 預測為 **${predictedPhase}** |
-| **原子半徑偏差 ($\\delta$)** | ${delta.toFixed(3)}% | $\\le 6.6\\%$ (固溶體穩定區) | ${delta <= 6.6 ? '🟢 符合穩定標準' : '🟡 有析出相偏析風險'} |
-| **混合焓 ($\\Delta H_{\\text{mix}}$)** | ${dH_mix.toFixed(2)} kJ/mol | $-15 \\sim 5\\text{ kJ/mol}$ (非晶態與金屬間化合物防止) | 🟢 處於安全熱力學區間 |
-| **熵能參數 ($\\Omega$)** | ${omega.toFixed(3)} | $\\ge 1.1$ (高熵穩定主導) | 🟢 熵主導效應通過 |
-| **疊差能指標 (SFE Index)** | ${estimated_SFE_heuristic_index.toFixed(1)} mJ/m² | $15 \\sim 40\\text{ mJ/m²}$ (TWIP/TRIP 亞穩變形區) | ${estimated_SFE_heuristic_index >= 15 && estimated_SFE_heuristic_index <= 40 ? '🟢 處於亞穩形變誘發塑性區' : '🟡 偏離最佳形變機制'} |
-| **耐點蝕當量 (PREN)** | ${PREN.toFixed(1)} | $\\ge 25.0$ (耐點蝕性能良好) | ${PREN >= 25.0 ? '🟢 耐腐蝕性能良好' : '🟡 點蝕風險較高'} |
+| **價電子濃度 (VEC)** | ${des.VEC.toFixed(3)} | $\\ge 8.0$ (單相 FCC), $< 6.87$ (單相 BCC) | 預測為 **${des.predictedPhase}** |
+| **原子半徑偏差 ($\\delta$)** | ${des.delta.toFixed(3)}% | $\\le 6.6\\%$ (固溶體穩定區) | ${des.delta <= 6.6 ? '🟢 符合穩定標準' : '🟡 有析出相偏析風險'} |
+| **混合焓 ($\\Delta H_{\\text{mix}}$)** | ${des.dH_mix.toFixed(2)} kJ/mol | $-15 \\sim 5\\text{ kJ/mol}$ (非晶態與金屬間化合物防止) | 🟢 處於安全熱力學區間 |
+| **熵能參數 ($\\Omega$)** | ${des.omega.toFixed(3)} | $\\ge 1.1$ (高熵穩定主導) | 🟢 熵主導效應通過 |
+| **疊差能指標 (SFE Index)** | ${des.estimated_SFE_heuristic_index.toFixed(1)} mJ/m² | $15 \\sim 40\\text{ mJ/m²}$ (TWIP/TRIP 亞穩變形區) | ${des.estimated_SFE_heuristic_index >= 15 && des.estimated_SFE_heuristic_index <= 40 ? '🟢 處於亞穩形變誘發塑性區' : '🟡 偏離最佳形變機制'} |
+| **耐點蝕當量 (PREN)** | ${des.PREN.toFixed(1)} | $\\ge 25.0$ (耐點蝕性能良好) | ${des.PREN >= 25.0 ? '🟢 耐腐蝕性能良好' : '🟡 點蝕風險較高'} |
 | **間隙相析出風險 (Interstitial Risk)** | ${interstitial_precipitation_risk.toFixed(2)} kJ/mol | 參考指標 (低熱力學驅動力優先) | 🟢 參考指標 (無硬性拒絕門檻) |
 
 ---
@@ -652,7 +593,7 @@ const runTimeline = async () => {
 
 | 失敗/代理樣本 ID | 失敗/代理配方名稱 | 缺陷類型 (Defect Type) | 距離 (at.%) | 最終懲罰權重 (Penalty) |
 | :--- | :--- | :--- | :--- | :--- |
-${penaltyDetails.map(p => `| \`${p.fail_id}\` | **${p.alloy_name}** | \`${p.defect_type}\` | ${p.distance} at.% | **${p.final_penalty}** |`).join('\n')}
+${pen.details.map(p => `| \`${p.fail_id}\` | **${p.alloy_name}** | \`${p.defect_type}\` | ${p.distance} at.% | **${p.final_penalty}** |`).join('\n')}
 
 - **失敗懲罰總得分 ($P_{\\text{foundry}}$)**: \`${P_foundry.toFixed(4)}\` (風險警戒閾值：\`< 0.25\`)
 - **狀態**：${P_foundry < 0.25 ? '🟢 遠離已知失敗/代理樣品空間' : '🔴 該候選配方高度接近失敗/代理樣品，不建議直接進入實體熔煉。'}
@@ -660,7 +601,7 @@ ${penaltyDetails.map(p => `| \`${p.fail_id}\` | **${p.alloy_name}** | \`${p.defe
 ---
 
 ## 五、物理與機械性質預估 (Hardness & Cost Predictions)
-- **surrogate hardness estimate 預估硬度**: \`HV ${predictedHardnessHV.toFixed(1)}\`
+- **surrogate hardness estimate 預估硬度**: \`HV ${des.surrogate_hardness_HV.toFixed(1)}\`
 - **是否超出參考區間 (Out-Of-Distribution)**: \`${isOOD ? '⚠️ 預估值偏高 (需實體硬度測試確認)' : '🟢 在常規參考區間內'}\`
 - **配方原料估算成本指數 (approximate raw-material cost index)**: \`$${totalCost.toFixed(2)} USD/kg\` *(註：此為 at.% 加權計算，非真實質量比例，僅供參考)*
 

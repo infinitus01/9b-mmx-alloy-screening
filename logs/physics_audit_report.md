@@ -6,7 +6,7 @@
 > [!IMPORTANT]
 > **候選合金配方安全等級審核狀態：🔴 高風險篩選結果 (HIGH_RISK_SCREENING_RESULT)**
 > - **評估對象**: Fe46-Mn24-Cr18-Ni10-N2 (Fe₄₆Mn₂₄Cr₁₈Ni₁₀N₂)
-> - **產出時間**: 2026-05-27T06:16:36.361Z
+> - **產出時間**: 2026-05-28T01:01:04.687Z
 > - **核驗標準**: [AGENTS.md](../AGENTS.md) 物理一致性閘門規範
 > - **方法學參考**: [docs/methodology.md](../docs/methodology.md)
 
@@ -50,16 +50,16 @@
 
 | 失敗/代理樣本 ID | 失敗/代理配方名稱 | 缺陷類型 (Defect Type) | 距離 (at.%) | 最終懲罰權重 (Penalty) |
 | :--- | :--- | :--- | :--- | :--- |
-| `Tainan-VIM-001` | **AlCoCrFeNi_equiatomic** | `LTM_THERMO_DEAD_ZONE` | 46.48 at.% | **0.0000** |
-| `Tainan-VAR-002` | **CoCr1.8FeNi** | `MTM_PROCESS_RISK` | 44.47 at.% | **0.0000** |
+| `Tainan-CN-007` | **Fe46-Mn24-Cr18-Ni10-N2_Sensitized** | `LTM_THERMO_DEAD_ZONE` | 0.00 at.% | **1.1914** |
+| `Tainan-CN-008` | **Fe48-Mn24-Cr18-Ni10-C2_Carbide_Segregation** | `MTM_PROCESS_RISK` | 3.46 at.% | **0.7774** |
 | `Tainan-DCC-003` | **Al0.3CoCrFeNi_Slow_Cool** | `STM_OPERATOR_NOISE` | 43.47 at.% | **0.0000** |
+| `Tainan-VAR-002` | **CoCr1.8FeNi** | `MTM_PROCESS_RISK` | 44.47 at.% | **0.0000** |
+| `Tainan-VIM-001` | **AlCoCrFeNi_equiatomic** | `LTM_THERMO_DEAD_ZONE` | 46.48 at.% | **0.0000** |
+| `Virt-RHEA-Fail-006` | **RHEA-W-Mo-Cr-Ti_LowDensity** | `MTM_PROCESS_RISK` | 70.71 at.% | **0.0000** |
 | `Virt-RHEA-Fail-004` | **RHEA-W-Mo-Ta-Nb-Ti_Balanced** | `MTM_PROCESS_RISK` | 71.55 at.% | **0.0000** |
 | `Virt-RHEA-Fail-005` | **RHEA-Nb-Ti-V-Ta_Ductile** | `MTM_PROCESS_RISK` | 74.97 at.% | **0.0000** |
-| `Virt-RHEA-Fail-006` | **RHEA-W-Mo-Cr-Ti_LowDensity** | `MTM_PROCESS_RISK` | 70.71 at.% | **0.0000** |
-| `Tainan-CN-007` | **Fe46-Mn24-Cr18-Ni10-N2_Sensitized** | `LTM_THERMO_DEAD_ZONE` | 0.00 at.% | **0.7942** |
-| `Tainan-CN-008` | **Fe48-Mn24-Cr18-Ni10-C2_Carbide_Segregation** | `MTM_PROCESS_RISK` | 3.46 at.% | **0.5182** |
 
-- **失敗懲罰總得分 ($P_{\text{foundry}}$)**: `1.3125` (風險警戒閾值：`< 0.25`)
+- **失敗懲罰總得分 ($P_{\text{foundry}}$)**: `1.9687` (風險警戒閾值：`< 0.25`)
 - **狀態**：🔴 該候選配方高度接近失敗/代理樣品，不建議直接進入實體熔煉。
 
 ---

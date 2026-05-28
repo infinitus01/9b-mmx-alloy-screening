@@ -1,92 +1,15 @@
 /**
- * 9B-MMX v0.1: HEA Candidate Audit Console Client Engine (app.js)
+ * 9B-MMX v0.1: HEA Candidate Audit Console Client Engine (app.js - Refactored)
  */
 
-// --- 1. Elemental Metallurgical Parameters ---
-const ELEMENTS = {
-  Al: { vec: 3, r: 1.43, T_m: 933, cost: 2.2, type: "substitutional", name: "鋁 (Al)" },
-  Co: { vec: 9, r: 1.25, T_m: 1768, cost: 35.0, type: "substitutional", name: "鈷 (Co)" },
-  Cr: { vec: 6, r: 1.28, T_m: 2180, cost: 9.8, type: "substitutional", name: "鉻 (Cr)" },
-  Fe: { vec: 8, r: 1.26, T_m: 1811, cost: 0.5, type: "substitutional", name: "鐵 (Fe)" },
-  Ni: { vec: 10, r: 1.24, T_m: 1728, cost: 16.5, type: "substitutional", name: "鎳 (Ni)" },
-  Mn: { vec: 7, r: 1.27, T_m: 1519, cost: 1.8, type: "substitutional", name: "錳 (Mn)" },
-  C: { vec: 4, r: 0.77, T_m: 3823, cost: 0.1, type: "interstitial", name: "碳 (C)" },
-  N: { vec: 5, r: 0.71, T_m: 63, cost: 0.05, type: "interstitial", name: "氮 (N)" }
-};
+// --- 1. Shared Core Modules Hook ---
+const ELEMENTS = Descriptors.ELEMENTS;
+const ATOMIC_MASS = Descriptors.ATOMIC_MASS;
+const MIXING_ENTHALPIES = Descriptors.MIXING_ENTHALPIES;
 
-const ATOMIC_MASS = {
-  Al: 26.98,
-  Co: 58.93,
-  Cr: 52.00,
-  Fe: 55.85,
-  Mn: 54.94,
-  Ni: 58.69,
-  C: 12.01,
-  N: 14.01
-};
-
-function atPctToWtPct(composition) {
-  let totalMass = 0;
-  for (let el in composition) {
-    if (composition[el] > 0) {
-      totalMass += (composition[el] / 100) * (ATOMIC_MASS[el] || 0);
-    }
-  }
-  const wtPct = {};
-  if (totalMass === 0) {
-    for (let el in composition) {
-      wtPct[el] = 0;
-    }
-    return wtPct;
-  }
-  for (let el in composition) {
-    wtPct[el] = (((composition[el] / 100) * (ATOMIC_MASS[el] || 0)) / totalMass) * 100;
-  }
-  return wtPct;
-}
-
-function getFormula(composition) {
-  const subscriptMap = {
-    '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
-    '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉',
-    '.': '·'
-  };
-  let parts = [];
-  const sortedElements = ['Fe', 'Mn', 'Cr', 'Ni', 'Co', 'Al', 'C', 'N'];
-  for (let el in composition) {
-    if (!sortedElements.includes(el)) {
-      sortedElements.push(el);
-    }
-  }
-  sortedElements.forEach(el => {
-    const val = composition[el];
-    if (val > 0) {
-      const valStr = val % 1 === 0 ? val.toString() : val.toFixed(1);
-      const subStr = valStr.split('').map(char => subscriptMap[char] || char).join('');
-      parts.push(`${el}${subStr}`);
-    }
-  });
-  return parts.join('');
-}
-
-// Enthalpies of mixing (dH_ij, kJ/mol)
-const MIXING_ENTHALPIES = {
-  "Al-Co": -19, "Al-Cr": -10, "Al-Fe": -11, "Al-Ni": -22,
-  "Co-Cr": -4,  "Co-Fe": -1,  "Co-Ni": 0,
-  "Cr-Fe": -1,  "Cr-Ni": -7,
-  "Fe-Ni": -2,
-  "Al-Mn": -19, "Co-Mn": -5, "Cr-Mn": 2, "Fe-Mn": 0, "Mn-Ni": -8,
-  "Cr-N": -188, "Mn-N": -164, "Fe-N": -123, "Ni-N": -79,
-  "Cr-C": -61, "Mn-C": -49, "Fe-C": -50, "Ni-C": -39
-};
-
-function getdH(el1, el2) {
-  const pair1 = `${el1}-${el2}`;
-  const pair2 = `${el2}-${el1}`;
-  if (MIXING_ENTHALPIES[pair1] !== undefined) return MIXING_ENTHALPIES[pair1];
-  if (MIXING_ENTHALPIES[pair2] !== undefined) return MIXING_ENTHALPIES[pair2];
-  return 0;
-}
+const atPctToWtPct = Descriptors.atPctToWtPct;
+const getFormula = Descriptors.getFormula;
+const getdH = Descriptors.getdH;
 
 // --- 2. Failure Memory Database (Tainan Physical Foundry Trials) ---
 let failureLogs = [
@@ -95,17 +18,18 @@ let failureLogs = [
     alloy_name: "AlCoCrFeNi_equiatomic",
     composition: { Al: 20.0, Co: 20.0, Cr: 20.0, Fe: 20.0, Ni: 20.0, Mn: 0.0, C: 0.0, N: 0.0 },
     process_parameters: { cooling_rate_K_s: 0.5, heat_treatment_temp_C: 1100, work_stress_MPa: 50 },
-    defect_type: "LTM_THERMO_DEAD_ZONE", // Long term thermodynamic dead zone
+    defect_type: "LTM_THERMO_DEAD_ZONE",
     defect_details: "低冷卻速率下析出粗大 ordered B2/σ 脆性相，凝固後試片即發生巨觀開裂。",
     severity_weight: 0.95,
-    kernel_bandwidth: 3.5
+    kernel_bandwidth: 3.5,
+    process_sensitivity: "precipitation_slow_cooling"
   },
   {
     id: "Tainan-VAR-002",
     alloy_name: "CoCr1.8FeNi",
     composition: { Al: 0.0, Co: 20.0, Cr: 35.0, Fe: 22.5, Ni: 22.5, Mn: 0.0, C: 0.0, N: 0.0 },
     process_parameters: { cooling_rate_K_s: 2.0, heat_treatment_temp_C: 850, work_stress_MPa: 280 },
-    defect_type: "MTM_PROCESS_RISK", // Medium term process risk
+    defect_type: "MTM_PROCESS_RISK",
     defect_details: "高溫熱裂紋。Cr 元素在晶界發生嚴重偏析，工作應力過大導致沿晶開裂。",
     severity_weight: 0.82,
     kernel_bandwidth: 4.2
@@ -115,10 +39,11 @@ let failureLogs = [
     alloy_name: "Al0.3CoCrFeNi_Slow_Cool",
     composition: { Al: 6.8, Co: 23.3, Cr: 23.3, Fe: 23.3, Ni: 23.3, Mn: 0.0, C: 0.0, N: 0.0 },
     process_parameters: { cooling_rate_K_s: 0.08, heat_treatment_temp_C: 600, work_stress_MPa: 150 },
-    defect_type: "STM_OPERATOR_NOISE", // Short term operator noise
+    defect_type: "STM_OPERATOR_NOISE",
     defect_details: "冷卻過慢導致鑄錠底部產生 Al-Ni 元素偏析，加上真空腔室氣氛輕微波動。",
     severity_weight: 0.45,
-    kernel_bandwidth: 2.8
+    kernel_bandwidth: 2.8,
+    process_sensitivity: "precipitation_slow_cooling"
   },
   {
     id: "Virt-RHEA-Fail-004",
@@ -158,7 +83,8 @@ let failureLogs = [
     defect_type: "LTM_THERMO_DEAD_ZONE",
     defect_details: "低冷卻速率下晶界析出粗大 Cr2N 氮化物偏析，凝固冷卻過程中發生嚴重沿晶開裂。",
     severity_weight: 0.90,
-    kernel_bandwidth: 3.0
+    kernel_bandwidth: 3.0,
+    process_sensitivity: "precipitation_slow_cooling"
   },
   {
     id: "Tainan-CN-008",
@@ -168,7 +94,8 @@ let failureLogs = [
     defect_type: "MTM_PROCESS_RISK",
     defect_details: "概念性碳摻雜鋼在晶界形成網狀 M23C6 碳化物，導致敏化效應並在拉伸應力下沿晶脆性斷裂。",
     severity_weight: 0.85,
-    kernel_bandwidth: 3.5
+    kernel_bandwidth: 3.5,
+    process_sensitivity: "precipitation_slow_cooling"
   }
 ];
 
@@ -203,8 +130,15 @@ SANDBOX_MODE=worktree-isolated
 [CONSISTENCY_GATE]
 ELEMENT_SUM_TOLERANCE=1e-6
 FORCE_VALENCE_ELECTRON_CONCENTRATION_CHECK=true
-FORBIDDEN_PHASES=["Laves_phase", "sigma_phase_at_high_temp"]
+FORBIDDEN_PHASES=["Laves_phase", "sigma_phase_at_high_temp", "Cr2N_nitride", "M23C6_carbide"]
 DISSIPATION_ESTIMATE_MAX_VARIANCE=0.15
+
+# 2.5 間隙型固溶極限閘門 (Interstitial Solubility Gate)
+[INTERSTITIAL_GATE]
+NITROGEN_SOLUBILITY_BASE_AT_PCT=1.5
+NITROGEN_SOLUBILITY_CR_SLOPE=0.04
+CARBON_SOLUBILITY_MAX_AT_PCT=1.2
+TOTAL_INTERSTITIAL_MAX_AT_PCT=3.0
 
 # 3. 受控亞穩態探索協議配置 (CMEP Configuration)
 [METASTABLE_BYPASS]
@@ -327,188 +261,60 @@ const btnResetConfig = document.getElementById('btn-reset-config');
 const btnSaveConfig = document.getElementById('btn-save-config');
 const footerReportSummary = document.getElementById('footer-report-summary');
 
-// --- 5. Metallurgical Descriptor Engine ---
+// --- 5. Metallurgical Descriptor Engine Hook ---
 function calculateDescriptors(composition) {
-  // Calculate substitutional total and normalize
-  let totalSub = 0;
-  for (let el in composition) {
-    if (ELEMENTS[el] && ELEMENTS[el].type === "substitutional") {
-      totalSub += composition[el];
-    }
-  }
+  const coolingRate = state.process.cooling_rate;
+  const des = Descriptors.calculateDescriptors(composition, coolingRate);
+  const intRisk = Interstitial.calculateInterstitialPrecipitationRisk(composition);
+  const sol = Interstitial.checkInterstitialSolubility(composition);
 
-  // Normalize substitutional elements
-  let subComposition = {};
-  for (let el in composition) {
-    if (ELEMENTS[el] && ELEMENTS[el].type === "substitutional") {
-      subComposition[el] = totalSub > 0 ? (composition[el] / totalSub) * 100 : 0;
-    }
-  }
-
-  let VEC = 0;
-  let r_bar = 0;
-  for (let el in subComposition) {
-    let c = subComposition[el] / 100;
-    VEC += c * ELEMENTS[el].vec;
-    r_bar += c * ELEMENTS[el].r;
-  }
-
-  let deltaSum = 0;
-  for (let el in subComposition) {
-    let c = subComposition[el] / 100;
-    deltaSum += c * Math.pow(1 - (ELEMENTS[el].r / r_bar), 2);
-  }
-  let delta = 100 * Math.sqrt(deltaSum);
-
-  let dH_mix = 0;
-  const elementsKeys = Object.keys(subComposition);
-  for (let i = 0; i < elementsKeys.length; i++) {
-    for (let j = i + 1; j < elementsKeys.length; j++) {
-      let el1 = elementsKeys[i];
-      let el2 = elementsKeys[j];
-      let c1 = subComposition[el1] / 100;
-      let c2 = subComposition[el2] / 100;
-      dH_mix += 4 * getdH(el1, el2) * c1 * c2;
-    }
-  }
-
-  let dS_mix = 0;
-  const R = 8.314;
-  for (let el in subComposition) {
-    let c = subComposition[el] / 100;
-    if (c > 0) dS_mix -= R * c * Math.log(c);
-  }
-
-  let T_m = 0;
-  for (let el in subComposition) {
-    let c = subComposition[el] / 100;
-    T_m += c * ELEMENTS[el].T_m;
-  }
-
-  let omega = dH_mix !== 0 ? (T_m * dS_mix) / (Math.abs(dH_mix) * 1000) : Infinity;
-
-  // New descriptors
-  const wtPct = atPctToWtPct(composition);
-  const PREN = (wtPct.Cr || 0) + 16 * (wtPct.N || 0);
-
-  // Stacking Fault Energy (SFE) Heuristic Index (wt.% based)
-  const estimated_SFE_heuristic_index = 25.7 +
-    2.0 * (wtPct.Ni || 0) -
-    0.9 * (wtPct.Cr || 0) -
-    0.1 * (wtPct.Mn || 0) +
-    30.0 * (wtPct.C || 0) -
-    15.0 * (wtPct.N || 0) +
-    5.0 * (wtPct.Al || 0) -
-    1.5 * (wtPct.Co || 0);
-
-  // Interstitial Precipitation Risk
-  let interstitial_precipitation_risk = 0;
-  for (let elSub in composition) {
-    if (ELEMENTS[elSub] && ELEMENTS[elSub].type === "substitutional") {
-      const cSub = composition[elSub] / 100;
-      for (let elInt in composition) {
-        if (ELEMENTS[elInt] && ELEMENTS[elInt].type === "interstitial") {
-          const cInt = composition[elInt] / 100;
-          if (cSub > 0 && cInt > 0) {
-            const dH = getdH(elSub, elInt);
-            interstitial_precipitation_risk += 4 * Math.abs(dH) * cSub * cInt;
-          }
-        }
-      }
-    }
-  }
-
-  // Interstitial Solubility check
-  const crAt = composition.Cr || 0;
-  const cAt = composition.C || 0;
-  const nAt = composition.N || 0;
-  const nLimit = 1.5 + 0.04 * crAt;
-  const cLimit = 1.2;
-  const totalLimit = 3.0;
-  const isNExceeded = nAt > nLimit;
-  const isCExceeded = cAt > cLimit;
-  const isTotalExceeded = (cAt + nAt) > totalLimit;
-  const isInterstitialExceeded = isNExceeded || isCExceeded || isTotalExceeded;
-
-  // Phase prediction rules
-  let predictedPhase = "非平衡/玻璃態 (Amorphous Phase)";
-  if (delta <= 6.6 && dH_mix >= -15 && dH_mix <= 5 && omega >= 1.1) {
-    if (VEC >= 8.0) predictedPhase = "單相 FCC 固溶體 (富延展性)";
-    else if (VEC < 6.87) predictedPhase = "單相 BCC 固溶體 (高強度)";
-    else predictedPhase = "混相 FCC + BCC (B2/σ脆性析出潛在區)";
-  } else if (delta > 6.6 && dH_mix < -15) {
-    predictedPhase = "金屬間化合物 (高度脆性開裂相)";
-  } else {
-    predictedPhase = "多相混合物 (高微觀偏析與熱應力裂紋風險)";
+  // Translate phase name dynamically to localized terms for visual dashboard consistency
+  let localizedPhase = des.predictedPhase;
+  if (des.predictedPhase === "Single FCC Phase (Ductile)") {
+    localizedPhase = "單相 FCC 固溶體 (富延展性)";
+  } else if (des.predictedPhase === "Single BCC Phase (Strong)") {
+    localizedPhase = "單相 BCC 固溶體 (高強度)";
+  } else if (des.predictedPhase === "Mixed FCC + BCC Phase") {
+    localizedPhase = "混相 FCC + BCC (B2/σ脆性析出潛在區)";
+  } else if (des.predictedPhase === "Intermetallic Compound (Brittle)") {
+    localizedPhase = "金屬間化合物 (高度脆性開裂相)";
   }
 
   return {
-    VEC, delta, dH_mix, omega, T_m, predictedPhase,
-    estimated_SFE_heuristic_index, PREN, interstitial_precipitation_risk,
-    isInterstitialExceeded, isNExceeded, isCExceeded, isTotalExceeded, nLimit
+    ...des,
+    predictedPhase: localizedPhase,
+    interstitial_precipitation_risk: intRisk,
+    ...sol
   };
 }
 
-// --- 6. Defect-Weighted Penalty Kernel Algorithm ---
+// --- 6. Defect-Weighted Penalty Kernel Algorithm Hook ---
 function calculatePenaltyKernel(composition, coolingRate) {
-  let P_foundry = 0;
-  let penaltyDetails = [];
-
-  failureLogs.forEach(fail => {
-    // Composition Euclidean distance squared in full space
-    let distanceSq = 0;
-    let components = Array.from(new Set([...Object.keys(composition), ...Object.keys(fail.composition)]));
-    components.forEach(el => {
-      let x1 = composition[el] || 0;
-      let x2 = fail.composition[el] || 0;
-      distanceSq += Math.pow(x1 - x2, 2);
-    });
-
-    // Process parameters cooling rate correction
-    let coolingDiff = Math.abs(coolingRate - fail.process_parameters.cooling_rate_K_s);
-    let processCorrection = Math.exp(-Math.pow(coolingDiff, 2) / 2.0);
-
-    // Dynamic repulsion kernel with bandwidth
-    let exponent = -distanceSq / (2 * Math.pow(fail.kernel_bandwidth, 2));
-    let basePenalty = fail.severity_weight * Math.exp(exponent);
-    let finalPenalty = basePenalty * processCorrection;
-
-    P_foundry += finalPenalty;
-
-    penaltyDetails.push({
-      id: fail.id,
-      alloy_name: fail.alloy_name,
-      defect_type: fail.defect_type,
-      distance: Math.sqrt(distanceSq),
-      final_penalty: finalPenalty
-    });
-  });
-
-  // Sort by distance (closest first) to ensure nearest failure point is at index 0
-  penaltyDetails.sort((a, b) => a.distance - b.distance);
-
-  return { P_foundry, penaltyDetails };
+  const pen = Penalty.calculatePenalty(composition, coolingRate, failureLogs);
+  return {
+    P_foundry: pen.total_penalty_score,
+    penaltyDetails: pen.details.map(d => ({
+      id: d.fail_id,
+      alloy_name: d.alloy_name,
+      defect_type: d.defect_type,
+      distance: parseFloat(d.distance),
+      final_penalty: parseFloat(d.final_penalty)
+    }))
+  };
 }
 
-// --- 7. surrogate hardness estimate Mechanical Hardness Prediction ---
+// --- 7. surrogate hardness estimate Mechanical Hardness Prediction Hook ---
 function predictSurrogateHardness(composition, coolingRate) {
-  let baseHardness = 150;
-  baseHardness += (composition.Al || 0) * 12.5;
-  baseHardness += (composition.Cr || 0) * 3.5;
-  baseHardness += (composition.Mn || 0) * 2.8;
-  baseHardness += (composition.N || 0) * 85.0;
-  baseHardness += (composition.C || 0) * 120.0;
-
-  if (coolingRate < 1.0) {
-    baseHardness -= 25; // annealing relaxation
-  }
-
-  // Drift representation: based on Mn & Cr deviation from core database (which center around Mn:24, Cr:18)
+  const des = Descriptors.calculateDescriptors(composition, coolingRate);
+  // Drift representation: based on Mn & Cr deviation from database (which center around Mn:24, Cr:18)
   let devMn = Math.abs((composition.Mn || 0) - 24);
   let devCr = Math.abs((composition.Cr || 0) - 18);
   let drift = 0.5 + 0.05 * (devMn + devCr);
 
-  return { hardness: baseHardness, drift };
+  return {
+    hardness: des.surrogate_hardness_HV,
+    drift
+  };
 }
 
 // --- 8. UI Synchronization ---
@@ -700,10 +506,35 @@ inputHeatTemp.addEventListener('input', updateDashboard);
 inputStress.addEventListener('input', updateDashboard);
 inputAtmosphere.addEventListener('change', updateDashboard);
 
-// --- 9. Drawing Failure Map ---
+// --- 9. Drawing Failure Map with 2D Contour Bounds ---
 function drawFailureRepulsionMap(currentPenalty, currentVEC, currentDelta) {
   // Clear Canvas
   ctxMap.clearRect(0, 0, failureKernelCanvas.width, failureKernelCanvas.height);
+
+  // Draw Dynamic real-time Contour Penalty Boundaries in the background
+  const step = 6;
+  for (let x = 0; x < failureKernelCanvas.width; x += step) {
+    for (let y = 0; y < failureKernelCanvas.height; y += step) {
+      const mnVal = (x / failureKernelCanvas.width) * 50;
+      const crVal = ((failureKernelCanvas.height - y) / failureKernelCanvas.height) * 50;
+
+      const tempComp = {
+        ...state.composition,
+        Mn: mnVal,
+        Cr: crVal
+      };
+
+      const penVal = Penalty.calculatePenalty(tempComp, state.process.cooling_rate, failureLogs).total_penalty_score;
+
+      if (penVal >= 0.40) {
+        ctxMap.fillStyle = "rgba(255, 51, 102, 0.08)";
+        ctxMap.fillRect(x, y, step, step);
+      } else if (penVal >= 0.25) {
+        ctxMap.fillStyle = "rgba(255, 159, 67, 0.04)";
+        ctxMap.fillRect(x, y, step, step);
+      }
+    }
+  }
 
   // Draw Background radar lines / grids
   ctxMap.strokeStyle = "rgba(255, 255, 255, 0.05)";
@@ -882,7 +713,7 @@ function writeTerminalLine(role, msg, colorType = "default") {
 
 // Initial Boot Message
 writeTerminalLine("SYSTEM", "9B-MMX v0.1 合金計算篩選原型核心啟動。沙盒隔離環境掛載完畢。", "cyan");
-writeTerminalLine("SYSTEM", "讀取 AGENTS.md 完成，防禦性物理合理性護欄 (Physics Consistency Auditor) 配置完成。", "default");
+writeTerminalLine("SYSTEM", "讀起 AGENTS.md 完成，防禦性物理合理性護欄 (Physics Consistency Auditor) 配置完成。", "default");
 writeTerminalLine("REALITY", "台南實體冶煉廠 (Physical Foundry) 反饋核管道載入成功，共有 8 筆失敗記憶記錄。", "amber");
 
 btnClearLogs.addEventListener('click', () => {
@@ -900,14 +731,16 @@ btnRunAudit.addEventListener('click', async () => {
 
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-  // Descriptor variables
+  // Run core descriptors & penalty calculations
   const des = calculateDescriptors(state.composition);
   const pen = calculatePenaltyKernel(state.composition, state.process.cooling_rate);
   const vib = predictSurrogateHardness(state.composition, state.process.cooling_rate);
+  const sieverts = Interstitial.calculateExperimentalSievertsNLimit(state.composition);
 
   // 1. Lattice Architect
   await sleep(800);
   writeTerminalLine("ARCHITECT", `晶格與成分候選結構分析完成。預估晶相結構：[${des.predictedPhase}]。顯式特徵描述符 VEC=${des.VEC.toFixed(3)}, δ=${des.delta.toFixed(3)}%, ΔH_mix=${des.dH_mix.toFixed(2)} kJ/mol, SFE Index=${des.estimated_SFE_heuristic_index.toFixed(1)} mJ/m², PREN=${des.PREN.toFixed(1)}, Interstitial Risk=${des.interstitial_precipitation_risk.toFixed(2)} kJ/mol.`, "default");
+  writeTerminalLine("ARCHITECT", `實驗性 Sieverts 氮溶解上限 (1600°C, 1atm): ${sieverts.limit_at.toFixed(2)} at.% (${sieverts.limit_wt.toFixed(4)} wt.%) [僅供實驗參考]`, "default");
 
   // 2. Resource Explorer
   await sleep(650);
@@ -999,12 +832,7 @@ btnRunAudit.addEventListener('click', async () => {
 
   // 7. Cost Evaluator
   await sleep(700);
-  let totalCost = 0;
-  for (let el in state.composition) {
-    if (ELEMENTS[el]) {
-      totalCost += (state.composition[el] / 100) * ELEMENTS[el].cost;
-    }
-  }
+  let totalCost = Descriptors.calculateRawMaterialCostIndex(state.composition);
   writeTerminalLine("EVALUATOR", `工藝與成本核算完成。原料配方單價預估 = $${totalCost.toFixed(2)} USD/kg。` + (state.process.heat_temp >= T_melt_C ? "⚠️ 注意：當前熱負荷過大，任何鐵基不銹鋼均無法承受負載。" : ""), "default");
 
   // 8. Engineering Translator & Final Verdict
@@ -1129,7 +957,8 @@ btnSubmitFailure.addEventListener('click', () => {
     defect_type: type,
     defect_details: details,
     severity_weight: type === "LTM_THERMO_DEAD_ZONE" ? 0.95 : (type === "MTM_PROCESS_RISK" ? 0.8 : 0.45),
-    kernel_bandwidth: type === "LTM_THERMO_DEAD_ZONE" ? 3.5 : (type === "MTM_PROCESS_RISK" ? 4.0 : 2.5)
+    kernel_bandwidth: type === "LTM_THERMO_DEAD_ZONE" ? 3.5 : (type === "MTM_PROCESS_RISK" ? 4.0 : 2.5),
+    process_sensitivity: "precipitation_slow_cooling"
   };
 
   // Push into local array
@@ -1167,7 +996,7 @@ setInterval(() => {
       state.cmep.enabled = false;
       btnCmepToggle.innerText = "🔒 啟動 CMEP 非平衡探索旁路閥門";
       btnCmepToggle.className = "btn btn-danger btn-block";
-      cmepActiveStats.classList.add('hide');
+      cmepActiveStats.className = "cmep-countdown-display hide";
       cmepSection.classList.remove('activated');
       securityLevelIndicator.innerText = "Level 1 Safety Gate (最高限制)";
       securityLevelIndicator.className = "sec-value";

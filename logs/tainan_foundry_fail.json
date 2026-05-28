@@ -22,6 +22,7 @@
     "defect_details": "Severe precipitation of brittle ordered B2/sigma phases under low cooling rates. Macro-cracks observed immediately after solidifying.",
     "severity_weight": 0.95,
     "kernel_bandwidth": 3.5,
+    "process_sensitivity": "precipitation_slow_cooling",
     "timestamp": "2026-04-10T14:32:00Z"
   },
   {
@@ -72,6 +73,7 @@
     "defect_details": "Dendrite macrosegregation of Al and Ni at the bottom ingot due to extremely low cooling rate, aggravated by slightly unstable vacuum level.",
     "severity_weight": 0.45,
     "kernel_bandwidth": 2.8,
+    "process_sensitivity": "precipitation_slow_cooling",
     "timestamp": "2026-05-20T17:40:00Z"
   },
   {
@@ -192,6 +194,7 @@
     "defect_details": "Conceptual stress-test proxy for N=2 at.% steel. Low cooling rate (0.1 K/s) is modeled as a high-risk sensitization condition with Cr2N grain-boundary precipitation and intergranular cracking risk.",
     "severity_weight": 0.90,
     "kernel_bandwidth": 3.0,
+    "process_sensitivity": "precipitation_slow_cooling",
     "timestamp": "2026-05-27T10:00:00Z"
   },
   {
@@ -218,6 +221,7 @@
     "defect_details": "Conceptual carbon-doped steel stress-test proxy with excessive grain-boundary M23C6 carbide network, high sensitization risk, and intergranular brittle-fracture risk under tension.",
     "severity_weight": 0.85,
     "kernel_bandwidth": 3.5,
+    "process_sensitivity": "precipitation_slow_cooling",
     "timestamp": "2026-05-27T10:15:00Z"
   }
 ]

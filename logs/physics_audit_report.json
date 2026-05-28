@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-27T06:16:36.360Z",
+  "timestamp": "2026-05-28T01:01:04.686Z",
   "candidate_alloy": "Fe46-Mn24-Cr18-Ni10-N2",
   "composition": {
     "Al": 0,
@@ -47,25 +47,27 @@
     }
   },
   "failure_distance_penalty_model": {
-    "total_penalty_score": 1.312488236210804,
+    "total_penalty_score": 1.9687323543162059,
     "threshold": 0.25,
     "is_high_risk": true,
     "details": [
       {
-        "fail_id": "Tainan-VIM-001",
-        "alloy_name": "AlCoCrFeNi_equiatomic",
+        "fail_id": "Tainan-CN-007",
+        "alloy_name": "Fe46-Mn24-Cr18-Ni10-N2_Sensitized",
         "defect_type": "LTM_THERMO_DEAD_ZONE",
-        "distance": "46.48",
-        "raw_penalty": "0.0000",
-        "final_penalty": "0.0000"
+        "distance": "0.00",
+        "raw_penalty": "1.3500",
+        "final_penalty": "1.1914",
+        "active_severity": 1.35
       },
       {
-        "fail_id": "Tainan-VAR-002",
-        "alloy_name": "CoCr1.8FeNi",
+        "fail_id": "Tainan-CN-008",
+        "alloy_name": "Fe48-Mn24-Cr18-Ni10-C2_Carbide_Segregation",
         "defect_type": "MTM_PROCESS_RISK",
-        "distance": "44.47",
-        "raw_penalty": "0.0000",
-        "final_penalty": "0.0000"
+        "distance": "3.46",
+        "raw_penalty": "0.7813",
+        "final_penalty": "0.7774",
+        "active_severity": 1.275
       },
       {
         "fail_id": "Tainan-DCC-003",
@@ -73,23 +75,26 @@
         "defect_type": "STM_OPERATOR_NOISE",
         "distance": "43.47",
         "raw_penalty": "0.0000",
-        "final_penalty": "0.0000"
+        "final_penalty": "0.0000",
+        "active_severity": 0.675
       },
       {
-        "fail_id": "Virt-RHEA-Fail-004",
-        "alloy_name": "RHEA-W-Mo-Ta-Nb-Ti_Balanced",
+        "fail_id": "Tainan-VAR-002",
+        "alloy_name": "CoCr1.8FeNi",
         "defect_type": "MTM_PROCESS_RISK",
-        "distance": "71.55",
+        "distance": "44.47",
         "raw_penalty": "0.0000",
-        "final_penalty": "0.0000"
+        "final_penalty": "0.0000",
+        "active_severity": 0.82
       },
       {
-        "fail_id": "Virt-RHEA-Fail-005",
-        "alloy_name": "RHEA-Nb-Ti-V-Ta_Ductile",
-        "defect_type": "MTM_PROCESS_RISK",
-        "distance": "74.97",
+        "fail_id": "Tainan-VIM-001",
+        "alloy_name": "AlCoCrFeNi_equiatomic",
+        "defect_type": "LTM_THERMO_DEAD_ZONE",
+        "distance": "46.48",
         "raw_penalty": "0.0000",
-        "final_penalty": "0.0000"
+        "final_penalty": "0.0000",
+        "active_severity": 1.4249999999999998
       },
       {
         "fail_id": "Virt-RHEA-Fail-006",
@@ -97,23 +102,26 @@
         "defect_type": "MTM_PROCESS_RISK",
         "distance": "70.71",
         "raw_penalty": "0.0000",
-        "final_penalty": "0.0000"
+        "final_penalty": "0.0000",
+        "active_severity": 0.75
       },
       {
-        "fail_id": "Tainan-CN-007",
-        "alloy_name": "Fe46-Mn24-Cr18-Ni10-N2_Sensitized",
-        "defect_type": "LTM_THERMO_DEAD_ZONE",
-        "distance": "0.00",
-        "raw_penalty": "0.9000",
-        "final_penalty": "0.7942"
-      },
-      {
-        "fail_id": "Tainan-CN-008",
-        "alloy_name": "Fe48-Mn24-Cr18-Ni10-C2_Carbide_Segregation",
+        "fail_id": "Virt-RHEA-Fail-004",
+        "alloy_name": "RHEA-W-Mo-Ta-Nb-Ti_Balanced",
         "defect_type": "MTM_PROCESS_RISK",
-        "distance": "3.46",
-        "raw_penalty": "0.5208",
-        "final_penalty": "0.5182"
+        "distance": "71.55",
+        "raw_penalty": "0.0000",
+        "final_penalty": "0.0000",
+        "active_severity": 0.8
+      },
+      {
+        "fail_id": "Virt-RHEA-Fail-005",
+        "alloy_name": "RHEA-Nb-Ti-V-Ta_Ductile",
+        "defect_type": "MTM_PROCESS_RISK",
+        "distance": "74.97",
+        "raw_penalty": "0.0000",
+        "final_penalty": "0.0000",
+        "active_severity": 0.88
       }
     ]
   },
