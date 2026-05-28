@@ -1,6 +1,6 @@
 # 9B-MMX: Computational Alloy Screening Prototype
 
-9B-MMX is a screening and audit prototype for carbon-nitrogen co-doped Fe-Mn-Cr-Ni-C-N metastable structural alloy candidates, with legacy Al-Co-Cr-Fe-Ni descriptor demo compatibility preserved.
+9B-MMX is a screening and audit prototype for exploratory Fe-Mn-Cr-Ni-C-N structural alloy search spaces, including carbon/nitrogen interstitial stress-test candidates, with legacy Al-Co-Cr-Fe-Ni descriptor demo compatibility preserved.
 
 > **Important Disclaimer**: This tool is a pre-screening computational filter. It is **not** a substitute for physical melting, microscopy, phase identification, or mechanical testing. All predictions and cost values are heuristic estimates for risk-alerting, not guaranteed material specifications.
 >
@@ -9,7 +9,7 @@
 ---
 
 ## 1. Project Overview
-This repository provides a lightweight, rule-based screening prototype for multi-principal-element and structural alloy candidates. The Fe-Mn-Cr-Ni-C-N metastable structural steel system is fully integrated into the computational screening runtime (with physical calibrations remaining heuristic and unvalidated by physical melts). Legacy Al-Co-Cr-Fe-Ni descriptor compatibility is also preserved.
+This repository provides a lightweight, rule-based screening prototype for multi-principal-element and structural alloy candidates. The Fe-Mn-Cr-Ni-C-N stress-test search space is implemented in the computational screening runtime, with all physical calibrations remaining heuristic and unvalidated by physical melts. Legacy Al-Co-Cr-Fe-Ni descriptor compatibility is also preserved.
 
 ---
 
@@ -36,14 +36,14 @@ As detailed in [docs/search_direction.md](docs/search_direction.md), the primary
 * **Shared Core Architecture**: Decouples calculations into reusable modules under `src/core/` (`descriptors.js`, `interstitial.js`, `penalty.js`) wrapped in UMD wrappers for seamless Node.js and browser classic script reuse.
 * **High-Throughput Batch Screening CLI**: Runs fast multi-candidate triaging using `node agy.js /batch-screen --input=<path_to_json> --output=<path_to_json>`, formatting output reports into a highly organized **Candidate Triage Table**.
 * **Process-Aware Failure Penalty**: Connects dynamic cooling rates ($CR$) to exclusion zones. Slow-cooling rates ($\le 1.0\text{ K/s}$) amplify failure penalty weights by $1.5\times$ for tagged precipitation-sensitive steel records, while fast cooling ($\ge 100\text{ K/s}$) scales penalties down to $0.2\times$, modeling suppression kinetics.
-* **Experimental Sieverts' Law solubility**: Incorporates liquid-iron interaction coefficients ($e_{\text{N}}^{\text{Cr}} = -0.06$, $e_{\text{N}}^{\text{Mn}} = -0.02$, $e_{\text{N}}^{\text{Ni}} = +0.01$) under $1600^\circ\text{C}$ and $1\text{ atm}$ to calculate an optional experimental solubility descriptor.
+* **Experimental Sieverts' Law solubility indicator**: Incorporates liquid-iron interaction coefficients ($e_{\text{N}}^{\text{Cr}} = -0.06$, $e_{\text{N}}^{\text{Mn}} = -0.02$, $e_{\text{N}}^{\text{Ni}} = +0.01$) under $1600^\circ\text{C}$ and $1\text{ atm}$ to calculate an optional experimental solubility descriptor.
 * **Thermodynamic Descriptor Estimation**: Calculates empirical values for Valence Electron Concentration (VEC), atomic size differences ($\delta$), mixing enthalpy ($\Delta H_{\text{mix}}$), and entropy parameters ($\Omega$) as **substitutional-only descriptors** (normalized within the substitutional subsystem).
 * **Solute Stacking Fault Energy ($SFE$) Indexing**: Estimates a weight percent (wt.%) based empirical SFE heuristic index to evaluate TRIP/TWIP deformation mechanism boundaries.
-* **Pitting Corrosion Resistance (PREN)**: Computes the Pitting Resistance Equivalent Number ($PREN = \text{Cr} + 16\text{N}$) in wt.% via `atPctToWtPct()` conversions.
+* **Pitting corrosion resistance index (PREN)**: Computes the Pitting Resistance Equivalent Number ($PREN = \text{Cr} + 16\text{N}$) in wt.% via `atPctToWtPct()` conversions.
 * **Interstitial Solubility & Precipitation Risk**: Enforces interstitial solubility limit gates for N, C, and total interstitials, and calculates the interstitial precipitation risk index from pairing enthalpies.
 * **Rule-Based Phase-Risk Flagging**: Identifies risks of brittle $\sigma$-phase, TCP Laves-phase, as well as interstitial grain-boundary $\text{Cr}_2\text{N}$ nitrides and $\text{M}_{23}\text{C}_6$ carbides using standard literature heuristics.
 * **Failure-Distance Penalty Modeling**: Employs a non-parametric Gaussian kernel to calculate multi-dimensional Euclidean composition and cooling rate distances against known casting failures in the expanded failure database.
-* **Surrogate Hardness Indexing**: Computes quick solid-solution Vickers Hardness predictions.
+* **Surrogate hardness estimate**: Computes quick solid-solution Vickers hardness estimates.
 
 ### What this tool DOES NOT do:
 * **No CALPHAD / DFT Solvers**: It does not run thermodynamic equilibrium phase diagrams (e.g. Thermo-Calc) or first-principles density functional theory calculations.
