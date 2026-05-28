@@ -1,151 +1,137 @@
 # 9B-MMX: Computational Alloy Screening Prototype
 
-9B-MMX is a screening and audit prototype for carbon-nitrogen co-doped Fe-Mn-Cr-Ni-C-N metastable structural alloy candidates, with legacy Al-Co-Cr-Fe-Ni descriptor demo compatibility preserved.
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![Node.js](https://img.shields.io/badge/Node.js-16%2B-green.svg)
+![Status](https://img.shields.io/badge/Status-Active_Development-orange.svg)
 
-> **Important Disclaimer**: This tool is a pre-screening computational filter. It is **not** a substitute for physical melting, microscopy, phase identification, or mechanical testing. All predictions and cost values are heuristic estimates for risk-alerting, not guaranteed material specifications.
->
-> The Fe-Mn-Cr-Ni-C-N search seeds represent conceptual search directions and are not yet calibrated against a validated thermodynamic, corrosion, cryogenic, weldability, or hydrogen embrittlement model.
+**9B-MMX** 是一個高通量、製程感知的合金鑄造風險快篩原型，面向 **Fe-Mn-Cr-Ni-C-N** 等探索性結構合金搜尋空間。它會在毫秒級時間內，根據物理描述符與歷史/代理失敗資料，快速標記需要優先排除或進一步審查的配方，協助研究者把實驗與 CALPHAD 資源集中到較值得後續驗證的候選區域。
 
----
-
-## 1. Project Overview
-This repository provides a lightweight, rule-based screening prototype for multi-principal-element and structural alloy candidates. The Fe-Mn-Cr-Ni-C-N metastable structural steel system is fully integrated into the computational screening runtime (with physical calibrations remaining heuristic and unvalidated by physical melts). Legacy Al-Co-Cr-Fe-Ni descriptor compatibility is also preserved.
+> **重要聲明**：這是一個**啟發式預篩工具**，不是材料性能預測器。所有輸出均為風險警示與相對排序用途，不得替代物理熔煉、顯微組織分析或機械測試。
 
 ---
 
-## 2. Conceptual Search Direction: Fe-Mn-Cr-Ni-C-N Alloys
+## 📊 Literature Benchmark：文獻基準比對
 
-As detailed in [docs/search_direction.md](docs/search_direction.md), the primary development focus of this prototype is establishing screening parameters for C/N-capable Fe-Mn-Cr-Ni structural steels. The repository includes three conceptual search seeds for research:
+這是目前 9B-MMX 最重要的文獻基準資料。
 
-* **Seed A: Fe-Mn-Cr-Ni Baseline**  
-  * Baseline quaternary composition for multi-principal structural steels.
-  * See [examples/search_seeds/seed_a_femncrni_baseline.json](examples/search_seeds/seed_a_femncrni_baseline.json).
-* **Seed B: Al Perturbation Proxy**  
-  * Fe-Mn-Cr-Ni matrix with a minor aluminum addition to perturb stacking fault energy (SFE).
-  * See [examples/search_seeds/seed_b_al_perturbation_proxy.json](examples/search_seeds/seed_b_al_perturbation_proxy.json).
-* **Seed C: Fe-Mn-Cr-Ni + elevated N**  
-  * Nitrogen-doped interstitial steel candidate acting as a stress-test proxy.
-  * *Note: N = 2 at.% is a computational stress-test proxy only and should not be interpreted as a practical melt composition.*
-  * See [examples/search_seeds/seed_c_nitrogen_proxy.json](examples/search_seeds/seed_c_nitrogen_proxy.json).
+我們選取 4 種在同行評審文獻中具有高品質實驗數據的經典合金（CrCoNi MEA、Fe-22Mn-0.6C TWIP 鋼、Cantor Alloy、AISI 304 慢冷敏化），進行盲測基準比對，並與文獻值進行量化誤差分析。
 
----
+**完整報告請見**：[docs/validation_report.md](docs/validation_report.md)
 
-## 3. Capabilities & Scope
+### 驗證總結（Quantitative Highlights）
 
-### What this tool DOES (Phase 3 Integrated):
-* **Shared Core Architecture**: Decouples calculations into reusable modules under `src/core/` (`descriptors.js`, `interstitial.js`, `penalty.js`) wrapped in UMD wrappers for seamless Node.js and browser classic script reuse.
-* **High-Throughput Batch Screening CLI**: Runs fast multi-candidate triaging using `node agy.js /batch-screen --input=<path_to_json> --output=<path_to_json>`, formatting output reports into a highly organized **Candidate Triage Table**.
-* **Process-Aware Failure Penalty**: Connects dynamic cooling rates ($CR$) to exclusion zones. Slow-cooling rates ($\le 1.0\text{ K/s}$) amplify failure penalty weights by $1.5\times$ for tagged precipitation-sensitive steel records, while fast cooling ($\ge 100\text{ K/s}$) scales penalties down to $0.2\times$, modeling suppression kinetics.
-* **Experimental Sieverts' Law solubility**: Incorporates liquid-iron interaction coefficients ($e_{\text{N}}^{\text{Cr}} = -0.06$, $e_{\text{N}}^{\text{Mn}} = -0.02$, $e_{\text{N}}^{\text{Ni}} = +0.01$) under $1600^\circ\text{C}$ and $1\text{ atm}$ to calculate an optional experimental solubility descriptor.
-* **Thermodynamic Descriptor Estimation**: Calculates empirical values for Valence Electron Concentration (VEC), atomic size differences ($\delta$), mixing enthalpy ($\Delta H_{\text{mix}}$), and entropy parameters ($\Omega$) as **substitutional-only descriptors** (normalized within the substitutional subsystem).
-* **Solute Stacking Fault Energy ($SFE$) Indexing**: Estimates a weight percent (wt.%) based empirical SFE heuristic index to evaluate TRIP/TWIP deformation mechanism boundaries.
-* **Pitting Corrosion Resistance (PREN)**: Computes the Pitting Resistance Equivalent Number ($PREN = \text{Cr} + 16\text{N}$) in wt.% via `atPctToWtPct()` conversions.
-* **Interstitial Solubility & Precipitation Risk**: Enforces interstitial solubility limit gates for N, C, and total interstitials, and calculates the interstitial precipitation risk index from pairing enthalpies.
-* **Rule-Based Phase-Risk Flagging**: Identifies risks of brittle $\sigma$-phase, TCP Laves-phase, as well as interstitial grain-boundary $\text{Cr}_2\text{N}$ nitrides and $\text{M}_{23}\text{C}_6$ carbides using standard literature heuristics.
-* **Failure-Distance Penalty Modeling**: Employs a non-parametric Gaussian kernel to calculate multi-dimensional Euclidean composition and cooling rate distances against known casting failures in the expanded failure database.
-* **Surrogate Hardness Indexing**: Computes quick solid-solution Vickers Hardness predictions.
+| 合金 | SFE 相對誤差 | Hardness 相對誤差 | 析出風險攔截 | Triage 決策 | 評價 |
+|------|--------------|-------------------|--------------|-------------|------|
+| CrCoNi MEA | **-30.8%** | — | 正確（低風險） | ✅ Green | 低風險判斷一致 |
+| Fe-22Mn-0.6C TWIP | **+18% ~ +107%** | — | ✅ 正確觸發 Red | ✅ Red | 良好（風險攔截準確） |
+| Cantor Alloy | **-30.4%** | **+67%** (vs 退火態) | 正確 | ⚠️ Yellow | 硬度明顯高估 |
+| AISI 304 (0.1 K/s) | — | — | ❌ 未攔截 | ⚠️ Yellow | **明顯盲區** |
 
-### What this tool DOES NOT do:
-* **No CALPHAD / DFT Solvers**: It does not run thermodynamic equilibrium phase diagrams (e.g. Thermo-Calc) or first-principles density functional theory calculations.
-* **No Material Guarantees**: It does not guarantee that screened alloys will form stable single phases or possess specific mechanical traits in actual foundry testing.
-* **No True ML Inference**: The hardness calculator is a simple rule-based surrogate, not a neural network or a trained deep-learning pipeline.
+**關鍵結論**：
+- 在**物理風險機制層級**，4 個案例的決策正確率約 **75%**。
+- 對中高碳合金的間隙析出風險攔截能力強（這正是 9B-MMX 最有價值的應用場景）。
+- Hardness surrogate 在無間隙元素的高熵合金系統存在系統性高估（+67%）。
+- 對極低碳 + 極慢冷（不鏽鋼敏化）情境，目前模型仍有明顯盲區。
+
+**這份驗證報告明確界定了 9B-MMX 的真實能力邊界**，也讓後續任何模型改進都有了客觀的 baseline。
 
 ---
 
-## 4. Quick Start & Reproducibility
+## 為什麼需要 9B-MMX？
 
-### Prerequisites
-* [Node.js](https://nodejs.org/) (Version 16 or higher recommended)
+傳統合金開發存在嚴重的「死亡之谷」：
 
-### Run Single Candidate Audit
-Clone this repository, navigate to the folder, and run:
+- **實體試錯成本極高**：數百種理論配方送進熔爐，動輒數十萬與數月，最後大多數在冷卻階段就因碳氮化物析出或脆性相而報廢。
+- **CALPHAD 太慢**：Thermo-Calc 等工具在 6 元以上系統（Fe-Mn-Cr-Ni-C-N）計算成本極高，無法支撐高通量探索。
 
+**9B-MMX 的定位**：作為高通量候選配方的快速分流工具，能在毫秒級時間內根據物理規則與歷史失敗數據，對大量成分進行初步風險篩選，讓後續昂貴的實驗與 CALPHAD 資源更集中在有潛力的少數候選上。
+
+---
+
+## 核心能力
+
+- **製程感知**：同時考慮成分 + 冷卻速率（Cooling Rate），動態調整間隙析出懲罰。
+- **多層防護**：物理守恆（VEC、δ、ΔH_mix、Ω）→ 間隙溶解度閘門 → 歷史失敗距離懲罰核。
+- **極速批次處理**：支援 JSON 輸入，輕鬆處理數千甚至上萬種候選配方。
+- **視覺化探索**：內建 Streamlit Dashboard，可即時調整成分並觀看雷達圖與風險評估。
+
+---
+
+## 典型使用情境
+
+### 1. 高碳/中碳亞穩結構合金開發（最推薦）
+在設計高錳 TWIP/TRIP 鋼或含 C/N 的 Fe-Mn-Cr-Ni 系統時，快速排除在常規鑄造條件下會產生嚴重晶界析出的配方。這是目前驗證表現最好的應用場景。
+
+### 2. AI 生成配方的下游過濾
+當機器學習模型產生 10,000 種候選成分時，先用 9B-MMX 進行粗篩，再把通過的少數配方送進 CALPHAD 或實驗。
+
+### 3. 製程視窗探索
+研究同一成分在不同冷卻速率下的風險變化，找出安全的鑄造參數窗口。
+
+---
+
+## 快速上手
+
+### 啟動 Dashboard（最推薦）
 ```bash
+pip install -r requirements.txt
 npm install
-npm run audit
+npm run dashboard
 ```
 
-This will run the computational screening engine on the default candidate alloy `Fe46-Mn24-Cr18-Ni10-N2`.
-
-### Run High-Throughput Batch Screening
-To evaluate a batch of candidates, run:
-
+### 命令列批次篩選
 ```bash
-node agy.js /batch-screen --input=examples/search_seeds/batch_seeds_example.json --output=logs/triage_report.json
+node agy.js /batch-screen \
+  --input=examples/search_seeds/validation/lit_batch_seeds.json \
+  --output=logs/triage_report.json
 ```
 
-This triages candidates into the triage report, classifying compositions into lower-risk ranks or triaged-out records.
+執行後會產生結構化分流報告，清楚標註 Green / Yellow / Red 三大類。
 
 ---
 
-## 5. Example Candidate & Outputs
+## 模型能力邊界與已知局限（重要）
 
-### Example Candidate Alloy (Conceptual Stress-Test Proxy)
-By default, the demo evaluates the conceptual candidate `Fe46-Mn24-Cr18-Ni10-N2` (at.%):
-* **Composition**: $\text{Fe}_{46}\text{Mn}_{24}\text{Cr}_{18}\text{Ni}_{10}\text{N}_{2}$ (at.%)
-* **Process Conditions**: Slow cooling rate of $0.6\text{ K/s}$, Vacuum Induction Melting.
+根據 [docs/validation_report.md](docs/validation_report.md) 的量化驗證，我們已識別以下系統性偏誤：
 
-> [!IMPORTANT]
-> **Stress-Test Proxy Design**: This candidate composition deliberately overlaps exactly with the failure-proxy record `Tainan-CN-007` to serve as a **stress-test proxy**. This verifies that the safety margins, interstitial limits, phase risk boundaries, and failure-distance penalty models correctly block/reject high-risk compositions (producing a `HIGH_RISK_SCREENING_RESULT` alert).
+| 偏誤 | 表現情境 | 嚴重程度 | 建議用途 |
+|------|----------|----------|----------|
+| Hardness 系統性高估 | 無間隙元素的高熵合金（退火態） | 高 | 僅用於相對排序，絕對值不可信 |
+| 高碳合金 SFE 高估 | C > 1.5 at.% 的 TWIP 鋼 | 中高 | 風險閘門反而因此加強，仍具實用價值 |
+| 極低碳慢冷敏化盲區 | 不鏽鋼長時效 / 0.1 K/s 級慢冷 | 高 | 此情境下需搭配其他工具 |
+| SFE 低估（低間隙系統） | CrCoNi、Cantor 等 | 中 | 仍能正確區分低/中 SFE 區間 |
 
-### Generated Output Files
-Running `npm run audit` generates or updates two primary files:
-* **`logs/physics_audit_report.json`**: Complete structured JSON output including raw calculations, distance values, and step logs.
-* **`logs/physics_audit_report.md`**: Technical screening report presenting alerts, tabular parameters, and risk decisions.
-
+**9B-MMX 最適合**用於「高碳/中碳 Fe-Mn-Cr-Ni-C-N 系統」的快速風險過濾。
+在需要精確數值硬度、極低碳長時效行為、或完整相圖的場景，請務必搭配 CALPHAD 與實驗驗證。
 
 ---
 
-## 6. Methodology Summary
+## 專案結構
 
-The screening pipeline checks three primary layers:
-1. **Composition Integrity**: Verifies that the atomic sum strictly equates to $100\%$ within the defined tolerance ($10^{-6}$).
-2. **Phase Boundary Rules**: Flags a `sigma_phase_at_high_temp` risk if $6.8 \le VEC \le 7.6$ and `Laves_phase` risk if atomic size difference $\delta$ exceeds empirical limits.
-3. **Historical Failure Kernel**: Calculates composition distance squared against a failure log (e.g., equiatomic $\text{AlCoCrFeNi}$ cracking runs). If the total penalty $P_{\text{foundry}} \ge 0.25$, the alloy is rejected as a high-risk candidate.
-
-For exact equations and literature references, see [docs/methodology.md](docs/methodology.md).
-
----
-
-## 7. Key Limitations & Risk Warnings
-* **Small Failure Database**: The sample database contains only 8 failure entries. A low penalty score does not ensure physical alloy stability; it merely signifies composition divergence from previously logged failures.
-* **Approximate Cost Index**: The raw material cost is an approximate index calculated using at.% weightings directly. It is not an exact currency cost per kilogram by mass.
-* **Embrittlement Warning**: Any candidate involving high-temperature, cryogenic, hydrogen, or corrosive service requires experimental toughness, phase, corrosion, and hydrogen-compatibility validation.
-
----
-
-## 8. Repository Structure
-
-```text
-├── AGENTS.md                  # Declarative sandboxing & threshold limits
-├── agy.js                     # Primary alloy calculation and screening script
-├── agy_rhea_gen.js            # Refractory HEA screening engine
-├── agy_stainless.js           # Stainless steel checking module
-├── package.json               # Package setup & run scripts
-├── README.md                  # Main repository homepage (this file)
-├── src/
-│   ├── core/                  # Shared computation engine (descriptors, penalty, interstitial)
-│   └── quantum/
-│       ├── candidate_gen/     # Candidate generator isolated write zone
-│       └── physics_auditor/   # Physics consistency auditor isolated write zone
+```
+9b-mmx-alloy-screening/
+├── agy.js                     # 核心 CLI 與批次處理引擎
+├── dashboard.py               # Streamlit 視覺化面板
+├── src/core/                  # 跨平台物理描述符與風險計算核心
+│   ├── descriptors.js
+│   ├── interstitial.js
+│   └── penalty.js
 ├── docs/
-│   ├── methodology.md         # Equations, boundaries, and assumptions
-│   ├── search_direction.md    # Fe-Mn-Cr-Ni-C-N future research roadmap
-│   └── demo_run.md            # Fact-based demo run log
+│   └── validation_report.md   # ← 文獻驗證與量化誤差分析（核心文件）
 ├── logs/
-│   ├── tainan_foundry_fail.json # Historical/proxy failure-distance records
-│   ├── physics_audit_report.json# Executed JSON run report
-│   └── physics_audit_report.md  # Compiled Markdown screening report
-└── examples/
-    ├── hea_config_99.json     # Legacy demo reference composition JSON
-    ├── sample_report.md       # Pre-run sample screening report copy
-    └── search_seeds/          # Conceptual search seeds for Fe-Mn-Cr-Ni-C-N
-        ├── seed_a_femncrni_baseline.json
-        ├── seed_b_al_perturbation_proxy.json
-        └── seed_c_nitrogen_proxy.json
+│   └── tainan_foundry_fail.json   # 歷史鑄造失敗代理資料庫
+├── examples/search_seeds/     # 測試用種子配方
+└── requirements.txt
 ```
 
 ---
 
-## 9. License
-This prototype is released under the MIT License.
+## License
+
+本專案以 MIT License 釋出。
+
+---
+
+**如果你正在開發新一代高強度、高韌性或低溫結構合金，並且希望在大量實驗之前先做一次嚴格的「物理可行性快篩」，歡迎使用 9B-MMX，並參考我們的驗證報告來評估其適用性。**
+
+有任何問題或想貢獻真實鑄造失敗數據，歡迎開 Issue 或直接聯絡。

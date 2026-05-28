@@ -1,6 +1,6 @@
 # Search Direction: C/N-Interstitial Fe-Mn-Cr-Ni-C-N Structural Alloys
 
-This document outlines the search direction for the fully integrated Fe-Mn-Cr-Ni-C-N metastable structural alloy screening console, transitioning from the legacy Al-Co-Cr-Fe-Ni system. These candidates represent low-criticality, high-strength structural materials.
+This document outlines the search direction for exploratory Fe-Mn-Cr-Ni-C-N structural alloy search spaces implemented in the screening console, transitioning from the legacy Al-Co-Cr-Fe-Ni system. These search seeds explore a low-criticality, high-strength structural-material design direction, but they are not validated material designs.
 
 > [!IMPORTANT]
 > **Model Calibration and Safety Disclaimer**
@@ -15,7 +15,7 @@ The transition to the Fe-Mn-Cr-Ni-C-N system is motivated by several key physica
 ### 1.1. Interstitial Strengthening by Carbon and Nitrogen (C/N)
 Carbon and nitrogen act as potent interstitial solid solution strengtheners in face-centered cubic (FCC) Fe-Mn-Cr-Ni matrices.
 * Unlike substitutional elements like aluminum or chromium, interstitial C/N additions introduce localized shear stress fields, significantly hindering dislocation movement and increasing yield strength.
-* Nitrogen can improve austenite stability and corrosion behavior; carbon is treated as a strengthening and carbide-sensitization stress-test variable in the Phase 3 engine (Phase 3 runtime active, still heuristic/unvalidated).
+* Nitrogen can improve austenite stability and corrosion behavior; carbon is treated as a strengthening and carbide-sensitization stress-test variable in the Phase 3 heuristic runtime.
 
 ### 1.2. Tuning Stacking Fault Energy (SFE)
 The concentration of manganese, nickel, carbon, and nitrogen controls the matrix Stacking Fault Energy (SFE) in the current heuristic model:
@@ -34,13 +34,13 @@ $$PREN = wt\%Cr + 3.3 \cdot wt\%Mo + 16 \cdot wt\%N$$
 
 ## 2. Active Engine Integration & Heuristic Calibration
 
-The computational screening engine and frontend sliders have been fully transitioned from Al-Co-Cr-Fe-Ni to the Fe-Mn-Cr-Ni-C-N system in Phase 3 (Phase 3 runtime active, still heuristic/unvalidated). The active parameters have been integrated and calibrated based on standard literature heuristics:
+The computational screening engine and frontend sliders implement the Fe-Mn-Cr-Ni-C-N stress-test search space in Phase 3. The active parameters are literature-derived heuristics, not validated physical calibrations:
 
 > [!NOTE]
 > **Active Implementation Status**
-> While fully integrated into the code runtime, these models remain computational screening heuristics. Full physical calibration against actual experimental melting, cryogenic toughness, and weldability tests remains a necessary next step.
+> While implemented in the code runtime, these models remain computational screening heuristics. Full physical calibration against actual experimental melting, cryogenic toughness, and weldability tests remains a necessary next step.
 
-1. **Nitrogen Solubility Limits (Phase 3 Active Integration)**: A simplified Sieverts' Law model (`calculateExperimentalSievertsNLimit`) is fully integrated and active as an operational descriptor in the core computation module, predicting nitrogen outgassing thresholds based on interaction parameters ($e_{\text{N}}^{\text{Cr}} = -0.06$, $e_{\text{N}}^{\text{Mn}} = -0.02$, $e_{\text{N}}^{\text{Ni}} = +0.01$, $e_{\text{N}}^{\text{Co}} = +0.01$, $e_{\text{N}}^{\text{Al}} = -0.05$) under standard casting conditions ($1600^\circ\text{C}$, $1\text{ atm}$ $N_2$).
+1. **Nitrogen Solubility Limits (Phase 3 Active Indicator)**: A simplified Sieverts' Law model (`calculateExperimentalSievertsNLimit`) is implemented as an optional operational descriptor in the core computation module, estimating nitrogen outgassing thresholds based on interaction parameters ($e_{\text{N}}^{\text{Cr}} = -0.06$, $e_{\text{N}}^{\text{Mn}} = -0.02$, $e_{\text{N}}^{\text{Ni}} = +0.01$, $e_{\text{N}}^{\text{Co}} = +0.01$, $e_{\text{N}}^{\text{Al}} = -0.05$) under standard casting assumptions ($1600^\circ\text{C}$, $1\text{ atm}$ $N_2$).
 2. **Interstitial-Substitutional Mixing Enthalpy**: Adapt Miedema’s model or high-throughput DFT databases to account for ternary interactions between nitrogen and alloy elements (especially Cr-N and Mn-N strong chemical affinities) to further refine the pairing enthalpy heuristic.
 3. **Phase Stability Boundaries (BCC vs FCC vs HCP)**: Calibrate VEC and $\delta$ limits specifically for nitrogen-doped iron-base systems under physical conditions, where nitrogen strongly stabilizes the FCC phase ($\gamma$).
 4. **Hydrogen Embrittlement Index**: Define susceptibility markers based on hydrogen diffusion coefficients and trap site densities associated with interstitial nitrogen in future iterations.
