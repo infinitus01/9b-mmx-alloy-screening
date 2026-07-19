@@ -1,5 +1,17 @@
 # 9B-MMX: Computational Alloy Screening Prototype
 
+> [!CAUTION]
+> **Repository status — legacy heuristic prototype**
+>
+> This repository is preserved as a historical and experience-comparison artifact.
+> It is not an actively validated alloy-design system, safety authority, or production
+> decision tool. Outputs are heuristic screening signals and must not be treated as
+> verified material properties or recommendations.
+>
+> Known documentation, evidence, and control-path corrections are recorded in
+> [ERRATA.md](ERRATA.md). Runtime code and historical outputs are intentionally left
+> unchanged so that the repository remains useful as an architecture-evolution record.
+
 9B-MMX is a screening and audit prototype for carbon-nitrogen co-doped Fe-Mn-Cr-Ni-C-N metastable structural alloy candidates, with legacy Al-Co-Cr-Fe-Ni descriptor demo compatibility preserved.
 
 > **Important Disclaimer**: This tool is a pre-screening computational filter. It is **not** a substitute for physical melting, microscopy, phase identification, or mechanical testing. All predictions and cost values are heuristic estimates for risk-alerting, not guaranteed material specifications.
