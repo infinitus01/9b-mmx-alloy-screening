@@ -97,15 +97,17 @@ The following are known static-source limitations at the review baseline:
 - [`AGENTS.md`](AGENTS.md) is primarily a declarative design document. Its role,
   sandbox, write-boundary, timeout, and several threshold statements are not an
   operating-system security boundary and are not all enforced by `agy.js`.
-- If the failure-memory JSON is missing or malformed, the current loader can continue
-  with an empty record set; the penalty function then returns zero. A low penalty must
-  not be interpreted as evidence of safety.
-- The batch path uses `P_foundry >= 0.40` for Red while the single-candidate path and
-  methodology describe `P_foundry >= 0.25` as high risk. Results from different
-  entry points are therefore not guaranteed to have identical gate semantics.
-- The dashboard displays a composition-sum check, but that check is not consistently
-  included in the final browser audit predicate. A displayed pass is not proof that
-  every stated gate was enforced.
+- In the `agy.js` CLI path, if the failure-memory JSON is missing or malformed, its
+  loader can continue with an empty record set; the penalty function then returns
+  zero. A low penalty must not be interpreted as evidence of safety.
+- For the failure-penalty gate specifically, `/batch-screen` treats
+  `0.25 <= P_foundry < 0.40` as Yellow when no separate Red gate has triggered, and
+  `P_foundry >= 0.40` as Red. The single-candidate final predicate treats
+  `P_foundry >= 0.25` as high risk. Entry points therefore do not have identical gate
+  semantics.
+- In the browser dashboard, the final `reportSafe` predicate does not include the
+  composition-sum/tolerance result, and the audit log prints the composition-pass line
+  unconditionally. The displayed pass is therefore not enforcement of that gate.
 - [`package.json`](package.json) contains no automated test or benchmark script at
   this baseline. Documentation and seed files alone do not establish dynamic
   reproduction.
@@ -114,6 +116,8 @@ These observations document limitations only; this errata intentionally does not
 modify the runtime implementation.
 
 ## 4. Correct interpretation of outputs
+
+For `/batch-screen` triage output, the color labels should be interpreted as follows:
 
 - **Green** means that no configured heuristic gate triggered in that execution path;
   it does not mean the material is verified, safe, manufacturable, or recommended.
